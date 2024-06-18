@@ -6,59 +6,256 @@
 //
 
 import Foundation
-import UIKit
 
-class FAFileManager: NSObject {
+class FAFileManager: NSObject{
+    
+    // singleton pattern
     static let shared: FAFileManager = {
         let instance = FAFileManager()
         return instance
     }()
+    
     private override init() {
         super.init()
     }
-    func saveImageToDocumentsDirectory(id: String, image: UIImage) -> String? {
-        guard let data = image.jpegData(compressionQuality: 1.0) else { return nil}
-        
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        
-        let fileName = "\(id).jpg"
-        let photoDirectory = documentsDirectory.appendingPathComponent("photos")
-        if !FileManager.default.fileExists(atPath: photoDirectory.path) {
-            do {
-                try FileManager.default.createDirectory(at: photoDirectory, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                print(error)
-                return nil
-            }
-        }
-        let fileURL = photoDirectory.appendingPathComponent(fileName)
-        do {
-            try data.write(to: fileURL)
-            //             print("Image saved: \(fileURL)")
-            //             print("Image saved path: \(fileURL.path)")
-            //             return fileURL.absoluteString
-            return fileURL.path
-        } catch {
-            print("Error saving image: \(error)")
+    
+    
+    // URI vs URL
+    // can be Local file path vs can only be internet file path
+    func getDocumentDirectory() -> URL? {
+        if let docDirectotyURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            return docDirectotyURL
         }
         return nil
     }
     
-    func loadImageFromDirectory(imageName: String) -> UIImage? {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let imagePath = documentsDirectory.appendingPathComponent("photos").appendingPathComponent(imageName)
-        
-        if FileManager.default.fileExists(atPath: imagePath.path) {
-            if let image = UIImage(contentsOfFile: imagePath.path) {
-                return image
-            } else {
-                print("Could not create UIImage from \(imagePath)")
-                return nil
-            }
-        } else {
-            print("No file found at \(imagePath)")
-            return nil
+    func libraryDirectoryPath() -> URL? {
+        if let libraryDirectoryURL = FileManager.default.urls(for: FileManager.SearchPathDirectory.libraryDirectory, in: .userDomainMask).first {
+            return libraryDirectoryURL
         }
+        return nil
     }
+    
+    func tempDirectoryPath() -> URL {
+        return FileManager.default.temporaryDirectory
+    }
+    
+    /*
+     - isWritable
+     - isReadble
+     - isExists
+     */
+    
+    func isWritable(file atPath: URL) -> Bool {
+        return FileManager.default.isWritableFile(atPath: atPath.path)
+    }
+    
+    func isReadable(file atPath: URL) -> Bool {
+        return FileManager.default.isReadableFile(atPath: atPath.path)
+    }
+    
+    func isExist(file atPath: URL) -> Bool {
+        return FileManager.default.fileExists(atPath: atPath.path)
+    }
+    
+    func writeFileIn(containingString: String, to path: URL, with name: String) -> Bool {
+        let filePath = path.path
+        let completePath = filePath + "/" + name
+        let data: Data? = containingString.data(using: .utf8)
+        return FileManager.default.createFile(atPath: completePath, contents: data, attributes: nil)
+    }
+    
+    func writeFileIn(containingData: Data, to path: URL, with name: String) -> Bool {
+        let filePath = path.path
+        let completePath = filePath + "/" + name
+        return FileManager.default.createFile(atPath: completePath, contents: containingData, attributes: nil)
+    }
+    
+    //  organize files into specific directories and handle data dynamically
+    func writeFileIn(folder: String, containingData: Data, to path: URL, with name: String) -> Bool {
+        let filePath = path.path + "/" + folder + "/" + name
+        if self.writeDirectory(folder: folder, to: path) {}
+        return FileManager.default.createFile(atPath: filePath, contents: containingData, attributes: nil)
+    }
+    
+    func writeDirectory(folder: String, to path: URL) -> Bool {
+        
+        _ = path.path + "/" + folder
+        if let documentDirectory = self.getDocumentDirectory() {
+            let path = documentDirectory.appendingPathComponent(folder)
+            if !self.isExist(file: path) {
+                do {
+                    try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true, attributes: nil)
+                    return true
+                }
+                catch {
+                    print(error)
+                }
+            }
+        }
+        return false
+    }
+    
+    func readFile(at path: URL, withName: String) -> String? {
+        
+        let completePath = path.path + "/" + withName
+        if let fileContent = FileManager.default.contents(atPath: completePath) {
+            if let fileStringData = String(bytes: fileContent, encoding: .utf8) {
+                return fileStringData
+            }
+        }
+        return nil
+    }
+    
+    func readFile(at path: URL, withNameForData: String) -> Data? {
+        
+        let completePath = path.path + "/" + withNameForData
+        if let fileContent = FileManager.default.contents(atPath: completePath) {
+            return fileContent
+        }
+        
+        return nil
+    }
+    
+    func deleteFile(at path: URL, with name: String) -> Bool
+    {
+        let makeFilePath = path.appendingPathComponent(name)
+        do {
+            try FileManager.default.removeItem(at: makeFilePath)
+            
+            return true
+        }
+        catch {
+            print(error)
+        }
+        
+        return false
+    }
+    
+    func deleteFile(at path: URL, withfolder fname: String, withfile name: String) -> Bool
+    {
+        var makeFilePath = path.appendingPathComponent(fname)
+        makeFilePath = makeFilePath.appendingPathComponent(name)
+        do {
+            try FileManager.default.removeItem(at: makeFilePath)
+            
+            return true
+        }
+        catch {
+            print(error)
+        }
+        
+        return false
+    }
+    
+    func moveFile(withFile name: String, inDirectory inPath: URL, toDirectory outPath: URL) -> Bool {
+        
+        let originPath = inPath.appendingPathComponent(name)
+        let destinationPath = outPath.appendingPathComponent(name)
+        do {
+            try FileManager.default.moveItem(at: originPath, to: destinationPath)
+            return true
+        }
+        catch {
+            print(error)
+        }
+        return false
+    }
+    
+    func copyFile(withFile name: String, inDirectory inPath: URL, toDirectory outPath: URL) -> Bool {
+        let originPath = inPath.appendingPathComponent(name)
+        let destinationPath = outPath.appendingPathComponent(name)
+        do {
+            try FileManager.default.copyItem(at: originPath, to: destinationPath)
+            return true
+        }
+        catch {
+            print(error)
+        }
+        return false
+    }
+    
+    func renameFile(at filePath: URL, oldfile oldName: String, newfile newname: String) -> Bool {
+        let oldFilePath = filePath.appendingPathComponent(oldName)
+        let newFilePath = filePath.appendingPathComponent(newname)
+        
+        do {
+            try FileManager.default.moveItem(at: oldFilePath, to: newFilePath)
+            return true
+        }
+        catch {
+            print(error)
+        }
+        return false
+    }
+    
+    func changeExtension(withName: String, at path: URL, toExtension newExt: String) -> Bool{
+        var newFileName = NSString(string: withName)
+        newFileName =  newFileName.deletingPathExtension as NSString
+        newFileName = newFileName.appendingPathExtension(newExt)! as NSString
+        
+        let oldFilePath = path.appendingPathComponent(withName)
+        let newFilePath = path.appendingPathComponent(newFileName as String)
+        
+        do {
+            try FileManager.default.moveItem(at: oldFilePath, to: newFilePath)
+            return true
+        }
+        catch {
+            print(error)
+        }
+        return false
+    }
+    
+    func changeExtensionWithSwift(withName: String, at path: URL, toExtension newExt: String) -> Bool{
+        
+        let names = withName.split(separator: ".")
+        let newName = names[0] + "." + newExt
+        
+        let oldFilePath = path.appendingPathComponent(withName)
+        let newFilePath = path.appendingPathComponent(newName)
+        
+        do {
+            try FileManager.default.moveItem(at: oldFilePath, to: newFilePath)
+            return true
+        }
+        catch {
+            print(error)
+        }
+        return false
+    }
+    
+    
+    func getAllFiles(at path: URL, foldername: String) -> [URL]
+    {
+        let filepath = path.appendingPathComponent(foldername)
+        do {
+            let directoryContents =   try FileManager.default.contentsOfDirectory(at: filepath, includingPropertiesForKeys: nil, options: [])
+            var pdfList = directoryContents.filter {
+                $0.pathExtension == "pdf"
+            } as [URL]
+            var txtList = directoryContents.filter {
+                $0.pathExtension == "txt"
+            } as [URL]
+            var csvList = directoryContents.filter {
+                $0.pathExtension == "csv"
+            } as [URL]
+            var pngList = directoryContents.filter {
+                $0.pathExtension == "png"
+            } as [URL]
+            
+            pdfList.append(contentsOf: txtList)
+            pdfList.append(contentsOf: csvList)
+            pdfList.append(contentsOf: pngList)
+            
+            return pdfList
+        }
+        catch {
+            print(error)
+        }
+        
+        return []
+    }
+    
+    
 }
