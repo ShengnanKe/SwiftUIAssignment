@@ -16,7 +16,7 @@ struct ImageSearchRequest: RequestBuilder {
     }
     var queryParam: [String: String]?
 
-    init(query: String, page: Int = 1) {  // Default page parameter
+    init(query: String, page: Int = 1) {  
         self.queryParam = ["query": query, "per_page": "20", "page": "\(page)"]
     }
 }

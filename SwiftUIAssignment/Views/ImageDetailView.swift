@@ -25,20 +25,20 @@ struct ImageDetailView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding()
                 
-                Button(action: {
-                    if viewModel.isBookmarked {
-                        viewModel.deleteBookmark()
-                    } else {
-                        viewModel.saveBookmark()
-                    }
-                }) {
-                    Text(viewModel.isBookmarked ? "Remove Bookmark" : "Bookmark")
-                        .padding()
-                        .background(viewModel.isBookmarked ? Color.red : Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding()
+//                Button(action: {
+//                    if viewModel.isBookmarked {
+//                        viewModel.deleteBookmark()
+//                    } else {
+//                        viewModel.saveBookmark()
+//                    }
+//                }) {
+//                    Text(viewModel.isBookmarked ? "Remove Bookmark" : "Bookmark")
+//                        .padding()
+//                        .background(viewModel.isBookmarked ? Color.red : Color.blue)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(8)
+//                }
+//                .padding()
             }
 
             Text(viewModel.photo.photographer)
