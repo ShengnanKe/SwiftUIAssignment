@@ -13,7 +13,7 @@ struct SwiftUIAssignmentApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ImageSearchView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }

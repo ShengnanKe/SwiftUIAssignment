@@ -23,7 +23,7 @@ struct ImageDataModel: Codable {
     }
 }
 
-struct MediaPhoto: Codable, Identifiable {
+struct MediaPhoto: Codable, Identifiable, Equatable {
     let id: Int
     let width: Int
     let height: Int
@@ -42,6 +42,10 @@ struct MediaPhoto: Codable, Identifiable {
         case photographerId = "photographer_id"
         case avgColor = "avg_color"
         case src, liked, alt
+    }
+    
+    static func == (lhs: MediaPhoto, rhs: MediaPhoto) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 

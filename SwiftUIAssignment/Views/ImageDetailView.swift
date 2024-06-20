@@ -22,27 +22,16 @@ struct ImageDetailView: View {
             } else if let image = viewModel.image {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .scaledToFit()
                     .padding()
-                
-//                Button(action: {
-//                    if viewModel.isBookmarked {
-//                        viewModel.deleteBookmark()
-//                    } else {
-//                        viewModel.saveBookmark()
-//                    }
-//                }) {
-//                    Text(viewModel.isBookmarked ? "Remove Bookmark" : "Bookmark")
-//                        .padding()
-//                        .background(viewModel.isBookmarked ? Color.red : Color.blue)
-//                        .foregroundColor(.white)
-//                        .cornerRadius(8)
-//                }
-//                .padding()
             }
 
             Text(viewModel.photo.photographer)
                 .font(.title)
+                .padding()
+
+            Text(viewModel.photo.alt)
+                .font(.body)
                 .padding()
 
             Spacer()
@@ -62,7 +51,6 @@ struct ImageDetailView_Previews: PreviewProvider {
             src: PhotoSrc(original: "https://via.placeholder.com/500", small: "https://via.placeholder.com/100",
                           large: "https://via.placeholder.com/500"), liked: false, alt: "Sample Image"
         )
-        let viewModel = ImageDetailViewModel(photo: photo)
-        ImageDetailView(viewModel: viewModel)
+        ImageDetailView(viewModel: ImageDetailViewModel(photo: photo))
     }
 }

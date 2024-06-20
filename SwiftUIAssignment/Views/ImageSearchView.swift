@@ -9,32 +9,34 @@ import SwiftUI
 
 struct ImageSearchView: View {
     @StateObject private var viewModel = ImageSearchViewModel()
-    
+    @State private var showResults = false
+
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
-                Text("Search for Images")
-                    .font(.largeTitle)
+                Text("Search Images")
+                    .font(.title)
                     .padding()
 
-                SearchBar(text: $viewModel.searchQuery)
-                    .padding()
-                
-                NavigationLink(
-                    destination: ImageSearchResultsListView(query: viewModel.searchQuery),
-                    label: {
-                        Text("Search")
-                    }
-                )
+                SearchBar(text: $viewModel.searchQuery) {
+                    showResults = true
+                }
                 .padding()
-                
+
+                // Use navigationDestination modifier for navigation
+                .navigationDestination(isPresented: $showResults) {
+                    ImageSearchResultsListView(query: viewModel.searchQuery)
+                }
+
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
                         .padding()
                 }
             }
-            .navigationTitle("Pexels Images")
+            .padding()
+            .navigationTitle("Image Search Page")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

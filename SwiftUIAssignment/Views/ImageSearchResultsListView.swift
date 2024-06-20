@@ -13,7 +13,7 @@ struct ImageSearchResultsListView: View {
 
     var body: some View {
         VStack {
-            if viewModel.isLoading {
+            if viewModel.isLoading && viewModel.images.isEmpty {
                 ProgressView()
                     .padding()
             }
@@ -23,7 +23,7 @@ struct ImageSearchResultsListView: View {
                     .foregroundColor(.red)
                     .padding()
             }
-            
+
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
                     ForEach(viewModel.images, id: \.id) { photo in
@@ -31,10 +31,20 @@ struct ImageSearchResultsListView: View {
                             AsyncImage(url: URL(string: photo.src.small)!)
                                 .frame(width: 100, height: 100)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .onAppear {
+                                    if viewModel.images.last == photo {
+                                        viewModel.loadMoreImages(query: query)
+                                    }
+                                }
                         }
                     }
                 }
                 .padding()
+            }
+
+            if viewModel.isLoading && !viewModel.images.isEmpty {
+                ProgressView()
+                    .padding()
             }
         }
         .navigationTitle("Search Results")
