@@ -2,7 +2,7 @@
 //  MediaBookmark+CoreDataProperties.swift
 //  SwiftUIAssignment
 //
-//  Created by KKNANXX on 6/17/24.
+//  Created by KKNANXX on 6/20/24.
 //
 //
 
@@ -16,8 +16,8 @@ extension MediaBookmark {
         return NSFetchRequest<MediaBookmark>(entityName: "MediaBookmark")
     }
 
+    @NSManaged public var name: String?
     @NSManaged public var filePath: String?
-    @NSManaged public var fileName: String?
     @NSManaged public var url: String?
 
 }

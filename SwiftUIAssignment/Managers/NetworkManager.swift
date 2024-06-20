@@ -30,6 +30,7 @@ class NetworkManager: NSObject {
     enum NetworkError: Error {
         case invalidURL
         case noData
+        case fileNotFound
     }
     
     func request(urlString: String, method: HTTPMethod, body: Data?, completion: @escaping (Result<Data, Error>) -> Void) {
@@ -89,34 +90,78 @@ class NetworkManager: NSObject {
     }
     
     func requestDownload(urlString: String, method: HTTPMethod, body: Data?, completion: @escaping (Result<URL, Error>) -> Void) {
-        // 1. Step - Make URL
         guard let url = URL(string: urlString) else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
         
+        let fileManager = FAFileManager.shared
+        guard let documentsDirectory = fileManager.getDocumentDirectory() else {
+            completion(.failure(NetworkError.fileNotFound))
+            return
+        }
+        
+        // Determine the appropriate directory based on the file type
+        let fileExtension = url.pathExtension.lowercased()
+        let targetDirectory = determineTargetDirectory(baseDirectory: documentsDirectory, fileExtension: fileExtension)
+        
+        // Ensure the target directory exists
+        if !fileManager.isExist(file: targetDirectory) {
+            do {
+                try FileManager.default.createDirectory(at: targetDirectory, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                completion(.failure(error))
+                return
+            }
+        }
+
+        let fileName = UUID().uuidString + "." + fileExtension
+        let destinationURL = targetDirectory.appendingPathComponent(fileName)
+
+        // Check if file already exists
+        if fileManager.isExist(file: destinationURL) {
+            completion(.success(destinationURL))
+            return
+        }
+        
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
+        if let bodyData = body {
+            request.httpBody = bodyData
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
         
-        
-        let task = URLSession.shared.downloadTask(with: request, completionHandler: { fileUrl, response, error in
-            
+        let task = URLSession.shared.downloadTask(with: request) { tempFileUrl, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
             
-            guard let fileUrl = fileUrl else  {
+            guard let tempFileUrl = tempFileUrl else {
                 completion(.failure(NetworkError.noData))
                 return
             }
             
-            completion(.success(fileUrl))
-        
-            
-        })
-        
+            do {
+                try FileManager.default.moveItem(at: tempFileUrl, to: destinationURL)
+                completion(.success(destinationURL))
+            } catch {
+                completion(.failure(error))
+            }
+        }
         task.resume()
-        
     }
+
+    func determineTargetDirectory(baseDirectory: URL, fileExtension: String) -> URL {
+        switch fileExtension {
+        case "jpg", "jpeg", "png", "gif":
+            return baseDirectory.appendingPathComponent("photos")
+        case "mov", "mp4":
+            return baseDirectory.appendingPathComponent("videos")
+        default:
+            return baseDirectory.appendingPathComponent("downloads")
+        }
+    }
+
+
 }

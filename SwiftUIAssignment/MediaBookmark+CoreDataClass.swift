@@ -2,7 +2,7 @@
 //  MediaBookmark+CoreDataClass.swift
 //  SwiftUIAssignment
 //
-//  Created by KKNANXX on 6/17/24.
+//  Created by KKNANXX on 6/20/24.
 //
 //
 

@@ -1,25 +1,24 @@
 //
-//  ImageSearchResultsViewModel.swift
+//  ImageSearchViewModel.swift
 //  SwiftUIAssignment
 //
-//  Created by KKNANXX on 6/16/24.
+//  Created by KKNANXX on 6/19/24.
 //
 
-import Foundation
 import SwiftUI
 
-@MainActor
-class ImageSearchResultsViewModel: ObservableObject {
+class ImageSearchViewModel: ObservableObject {
+    @Published var searchQuery: String = ""
     @Published var images: [MediaPhoto] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
     private let httpClient = HttpClient()
 
-    func searchImages(query: String) {
-        guard !query.isEmpty else { return }
+    func searchImages() {
+        guard !searchQuery.isEmpty else { return }
         
-        let request = ImageSearchRequest(query: query)
+        let request = ImageSearchRequest(query: searchQuery)
         isLoading = true
         errorMessage = nil
 
