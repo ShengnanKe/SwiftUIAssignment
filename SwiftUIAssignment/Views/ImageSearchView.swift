@@ -39,14 +39,14 @@ struct ImageSearchView: View {
                 }
             }
             .navigationDestination(isPresented: $showResults) {
-                ImageSearchResultsListView(query: searchText)
+                ImageSearchResultsView(query: searchText)
             }
         }
     }
 }
 
-struct ImageSearchView_Previews: PreviewProvider {
-    static var previews: some View {
-        ImageSearchView()
-    }
-}
+//struct ImageSearchView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ImageSearchView()
+//    }
+//}

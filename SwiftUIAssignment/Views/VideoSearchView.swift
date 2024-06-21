@@ -8,11 +8,46 @@
 import SwiftUI
 
 struct VideoSearchView: View {
+    @StateObject private var viewModel = VideoSearchViewModel()
+    @State private var searchText = ""
+    @State private var showResults = false
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            VStack {
+                Text("Search Videos")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
+                }
+
+            }
+            .padding()
+            .navigationTitle("Video Search Page")
+            //.navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search for videos")
+            .onSubmit(of: .search) {
+                viewModel.searchQuery = searchText
+                if !searchText.isEmpty {
+                    viewModel.searchVideos(query: searchText)
+                    showResults = true
+                }
+            }
+            .navigationDestination(isPresented: $showResults) {
+                VideoSearchResultsView(query: searchText)
+            }
+        }
     }
 }
-
-#Preview {
-    VideoSearchView()
-}
+//
+//struct VideoSearchView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        VideoSearchView()
+//    }
+//}
