@@ -5,7 +5,6 @@
 //  Created by KKNANXX on 6/20/24.
 //
 
-import Foundation
 import SwiftUI
 
 @MainActor
@@ -16,9 +15,14 @@ class VideoSearchResultsViewModel: ObservableObject {
 
     private let httpClient = HttpClient()
     private var currentPage = 1
-    private var canLoadMorePages = true
+    private var nextPage: String?
+    var query: String
 
-    func searchVideos(query: String, page: Int = 1) {
+    init(query: String) {
+        self.query = query
+    }
+
+    func searchVideos(page: Int = 1) {
         guard !query.isEmpty, !isLoading else { return }
 
         isLoading = true
@@ -37,7 +41,7 @@ class VideoSearchResultsViewModel: ObservableObject {
                         self.videos.append(contentsOf: response.videos)
                     }
                     self.currentPage = page
-                    self.canLoadMorePages = response.videos.count == 20 // Assuming 20 items per page
+                    self.nextPage = response.nextPage
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -45,9 +49,9 @@ class VideoSearchResultsViewModel: ObservableObject {
         }
     }
 
-    func loadMoreVideos(query: String) {
-        if canLoadMorePages {
-            searchVideos(query: query, page: currentPage + 1)
+    func loadMoreVideos() {
+        if let nextPage = nextPage, !isLoading {
+            searchVideos(page: currentPage + 1)
         }
     }
 }

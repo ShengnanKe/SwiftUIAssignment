@@ -5,7 +5,6 @@
 //  Created by KKNANXX on 6/16/24.
 //
 
-import Foundation
 import SwiftUI
 
 @MainActor
@@ -16,9 +15,14 @@ class ImageSearchResultsViewModel: ObservableObject {
 
     private let httpClient = HttpClient()
     private var currentPage = 1
-    private var canLoadMorePages = true
+    private var nextPage: String?
+    var query: String
 
-    func searchImages(query: String, page: Int = 1) {
+    init(query: String) {
+        self.query = query
+    }
+
+    func searchImages(page: Int = 1) {
         guard !query.isEmpty, !isLoading else { return }
 
         isLoading = true
@@ -31,9 +35,13 @@ class ImageSearchResultsViewModel: ObservableObject {
                 self.isLoading = false
                 switch result {
                 case .success(let response):
-                    self.images.append(contentsOf: response.photos)
-                    self.currentPage += 1
-                    self.canLoadMorePages = response.photos.count == 20
+                    if page == 1 {
+                        self.images = response.photos
+                    } else {
+                        self.images.append(contentsOf: response.photos)
+                    }
+                    self.currentPage = page
+                    self.nextPage = response.nextPage
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -41,9 +49,9 @@ class ImageSearchResultsViewModel: ObservableObject {
         }
     }
 
-    func loadMoreImages(query: String) {
-        if canLoadMorePages {
-            searchImages(query: query, page: currentPage)
+    func loadMoreImages() {
+        if let nextPage = nextPage, !isLoading {
+            searchImages(page: currentPage + 1)
         }
     }
 }

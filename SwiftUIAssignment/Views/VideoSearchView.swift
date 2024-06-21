@@ -11,6 +11,7 @@ struct VideoSearchView: View {
     @StateObject private var viewModel = VideoSearchViewModel()
     @State private var searchText = ""
     @State private var showResults = false
+    @State private var resultsViewModel: VideoSearchResultsViewModel?
 
     var body: some View {
         NavigationStack {
@@ -27,27 +28,29 @@ struct VideoSearchView: View {
                         .padding()
                 }
 
+                Spacer()
             }
             .padding()
             .navigationTitle("Video Search Page")
-            //.navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search for videos")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $viewModel.searchQuery, prompt: "Search for videos")
             .onSubmit(of: .search) {
-                viewModel.searchQuery = searchText
-                if !searchText.isEmpty {
-                    viewModel.searchVideos(query: searchText)
+                if !viewModel.searchQuery.isEmpty {
+                    resultsViewModel = viewModel.performSearch()
                     showResults = true
                 }
             }
             .navigationDestination(isPresented: $showResults) {
-                VideoSearchResultsView(query: searchText)
+                if let resultsViewModel = resultsViewModel {
+                    VideoSearchResultsView(viewModel: resultsViewModel)
+                }
             }
         }
     }
 }
-//
-//struct VideoSearchView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        VideoSearchView()
-//    }
-//}
+
+struct VideoSearchView_Previews: PreviewProvider {
+    static var previews: some View {
+        VideoSearchView()
+    }
+}

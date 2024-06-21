@@ -43,14 +43,14 @@ struct ImageDetailView: View {
     }
 }
 
-struct ImageDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        let photo = MediaPhoto(
-            id: 1, width: 100, height: 100, url: "https://via.placeholder.com/100", photographer: "Photographer Name",
-            photographerUrl: "https://via.placeholder.com", photographerId: 123, avgColor: "#CCCCCC",
-            src: PhotoSrc(original: "https://via.placeholder.com/500", small: "https://via.placeholder.com/100",
-                          large: "https://via.placeholder.com/500"), liked: false, alt: "Sample Image"
-        )
-        ImageDetailView(viewModel: ImageDetailViewModel(photo: photo))
-    }
-}
+//struct ImageDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        let photo = MediaPhoto(
+//            id: 1, width: 100, height: 100, url: "https://via.placeholder.com/100", photographer: "Photographer Name",
+//            photographerUrl: "https://via.placeholder.com", photographerId: 123, avgColor: "#CCCCCC",
+//            src: PhotoSrc(original: "https://via.placeholder.com/500", small: "https://via.placeholder.com/100",
+//                          large: "https://via.placeholder.com/500"), liked: false, alt: "Sample Image"
+//        )
+//        ImageDetailView(viewModel: ImageDetailViewModel(photo: photo))
+//    }
+//}

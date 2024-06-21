@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct VideoSearchResultsView: View {
-    @StateObject var viewModel = VideoSearchViewModel()
-    var query: String
+    @ObservedObject var viewModel: VideoSearchResultsViewModel
 
     var body: some View {
         VStack {
@@ -26,14 +25,15 @@ struct VideoSearchResultsView: View {
 
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
-                    ForEach(viewModel.videos, id: \.id) { video in
+                    ForEach(viewModel.videos.indices, id: \.self) { index in
+                        let video = viewModel.videos[index]
                         NavigationLink(destination: VideoDetailView(viewModel: VideoDetailViewModel(video: video))) {
                             AsyncImage(url: URL(string: video.image)!)
                                 .frame(width: 100, height: 100)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .onAppear {
-                                    if viewModel.videos.last == video {
-                                        viewModel.loadMoreVideos(query: query)
+                                    if index == viewModel.videos.count - 1 {
+                                        viewModel.loadMoreVideos()
                                     }
                                 }
                         }
@@ -49,13 +49,13 @@ struct VideoSearchResultsView: View {
         }
         .navigationTitle("Search Results")
         .onAppear {
-            viewModel.searchVideos(query: query)
+            viewModel.searchVideos()
         }
     }
 }
 
 struct VideoSearchResultsView_Previews: PreviewProvider {
     static var previews: some View {
-        VideoSearchResultsView(query: "nature")
+        VideoSearchResultsView(viewModel: VideoSearchResultsViewModel(query: "nature"))
     }
 }
