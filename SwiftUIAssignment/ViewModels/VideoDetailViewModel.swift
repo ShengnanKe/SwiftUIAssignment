@@ -19,6 +19,7 @@ class VideoDetailViewModel: ObservableObject {
     private let httpClient = HttpClient()
     private let dbManager = DBManager.shared
     private let fileManager = FAFileManager.shared
+    private let cacheManager = FACacheManager()
 
     init(video: MediaVideo) {
         self.video = video
@@ -27,32 +28,44 @@ class VideoDetailViewModel: ObservableObject {
     }
 
     private func checkIfBookmarked() {
-        // Logic to check if the video is bookmarked
         let bookmarks = dbManager.fetchData(entity: Videos.self)
         isBookmarked = bookmarks.contains { $0.videoFilePath == video.videoFiles.first?.link }
     }
 
     func loadVideo() {
-        guard let url = URL(string: video.videoFiles.first?.link ?? "") else {
+        guard let videoLink = video.videoFiles.first?.link, let url = URL(string: videoLink) else {
             errorMessage = "Invalid URL"
             return
         }
 
+        // Check if video is cached
+        if let cachedURL = cacheManager.getVideoURL(forKey: videoLink) {
+            videoFileURL = cachedURL
+            return
+        }
+
+        // Download the video if not cached
         isLoading = true
         errorMessage = nil
 
-        let request = SimpleRequest(url: url)
-        httpClient.fetchData(request: request) { result in
+        httpClient.download(request: SimpleRequest(url: url)) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {
-                case .success(let data):
-                    let tempURL = FAFileManager.shared.tempDirectoryPath().appendingPathComponent(url.lastPathComponent)
+                case .success(let tempURL):
+                    let fileName = url.lastPathComponent
+                    guard let videosDirectory = self.fileManager.getDirectory(for: "Videos") else {
+                        self.errorMessage = "Failed to access videos directory"
+                        return
+                    }
+                    let destinationURL = videosDirectory.appendingPathComponent(fileName)
+                    
                     do {
-                        try data.write(to: tempURL)
-                        self.videoFileURL = tempURL
+                        try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+                        self.videoFileURL = destinationURL
+                        self.cacheManager.saveVideoURL(destinationURL, forKey: videoLink)
                     } catch {
-                        self.errorMessage = error.localizedDescription
+                        self.errorMessage = "Failed to save downloaded file: \(error.localizedDescription)"
                     }
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
@@ -67,7 +80,11 @@ class VideoDetailViewModel: ObservableObject {
                 dbManager.deleteVideo(videoPath: videoEntity)
             }
         } else {
-            dbManager.addVideoData(userName: video.user.name, videoPath: video.videoFiles.first?.link ?? "")
+            guard let videoLink = video.videoFiles.first?.link else { return }
+            let fileName = URL(string: videoLink)?.lastPathComponent ?? UUID().uuidString + ".mp4"
+            guard let videosDirectory = fileManager.getDirectory(for: "Videos") else { return }
+            let destinationURL = videosDirectory.appendingPathComponent(fileName)
+            dbManager.addVideoData(userName: video.user.name, videoPath: destinationURL.path)
         }
         isBookmarked.toggle()
     }

@@ -5,10 +5,9 @@
 //  Created by KKNANXX on 6/23/24.
 //
 
-import SwiftUI
-import _AVKit_SwiftUI
 import CoreData
-
+import SwiftUI
+import AVKit
 
 struct BookmarkDetailView: View {
     let bookmark: NSManagedObject
@@ -19,6 +18,7 @@ struct BookmarkDetailView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .padding()
             } else if let videoPath = bookmark as? Videos, let path = videoPath.videoFilePath, let url = URL(string: path) {
                 VideoPlayer(player: AVPlayer(url: url))
                     .aspectRatio(contentMode: .fit)

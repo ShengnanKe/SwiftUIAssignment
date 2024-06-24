@@ -25,12 +25,22 @@ class FAFileManager: NSObject {
     // URI vs URL
     // ftp://jkfjkd/dkfjd // URI
     // https://
-    func getDocumentDirectory() -> URL?
-    {
-        if let docDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            return docDirectoryURL
+    func getDocumentDirectory() -> URL? {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+    }
+    
+    func getDirectory(for folderName: String) -> URL? {
+        guard let docDirectory = getDocumentDirectory() else { return nil }
+        let folderURL = docDirectory.appendingPathComponent(folderName)
+        if !FileManager.default.fileExists(atPath: folderURL.path) {
+            do {
+                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Error creating directory \(folderName): \(error.localizedDescription)")
+                return nil
+            }
         }
-        return nil
+        return folderURL
     }
     
     func libraryDirectoryPath() -> URL? {
@@ -45,9 +55,9 @@ class FAFileManager: NSObject {
     }
     
     /*
-      - isWritable
-      - isReadble
-      - isExists
+     - isWritable
+     - isReadble
+     - isExists
      */
     
     func isWritable(file atPath: URL) -> Bool {
@@ -63,17 +73,17 @@ class FAFileManager: NSObject {
     }
     
     /*
-       Directory (folder)
-        - create directory (folder) - DONE
-        - get-all-file from directory
-        - delete file -  Done
-        - create file (write a file) - DONE
-        - read file - Done
-        - Update file (delete old file, create new file with same name)
-        - move file - Done
-        - rename file - Done
-        - Copy file -  Done
-        - changeExension (.txt, .png, .jpg, .jpeg) -  Done
+     Directory (folder)
+     - create directory (folder) - DONE
+     - get-all-file from directory
+     - delete file -  Done
+     - create file (write a file) - DONE
+     - read file - Done
+     - Update file (delete old file, create new file with same name)
+     - move file - Done
+     - rename file - Done
+     - Copy file -  Done
+     - changeExension (.txt, .png, .jpg, .jpeg) -  Done
      */
     
     func writeFileIn(containingString: String, to path: URL, with name: String) -> Bool {
@@ -83,16 +93,20 @@ class FAFileManager: NSObject {
         return FileManager.default.createFile(atPath: completePath, contents: data, attributes: nil)
     }
     
-    func writeFileIn(containingData: Data, to path: URL, with name: String) -> Bool {
-        let filePath = path.path
-        let completePath = filePath + "/" + name
-        return FileManager.default.createFile(atPath: completePath, contents: containingData, attributes: nil)
-    }
-    
     func writeFileIn(folder: String, containingData: Data, to path: URL, with name: String) -> Bool {
         let filePath = path.path + "/" + folder + "/" + name
         if self.writeDirectory(folder: folder, to: path) {}
         return FileManager.default.createFile(atPath: filePath, contents: containingData, attributes: nil)
+    }
+    
+    func writeFileIn(containingData: Data, to path: URL, with name: String) -> Bool {
+        let filePath = path.appendingPathComponent(name)
+        return FileManager.default.createFile(atPath: filePath.path, contents: containingData, attributes: nil)
+    }
+    
+    func readFile(at path: URL, withName: String) -> Data? {
+        let completePath = path.appendingPathComponent(withName)
+        return FileManager.default.contents(atPath: completePath.path)
     }
     
     func writeDirectory(folder: String, to path: URL) -> Bool {
@@ -131,23 +145,18 @@ class FAFileManager: NSObject {
         if let fileContent = FileManager.default.contents(atPath: completePath) {
             return fileContent
         }
-
+        
         return nil
     }
-    
-    func deleteFile(at path: URL, with name: String) -> Bool
-    {
-        let makeFilePath = path.appendingPathComponent(name)
+    func deleteFile(at path: URL, with name: String) -> Bool {
+        let filePath = path.appendingPathComponent(name)
         do {
-            try FileManager.default.removeItem(at: makeFilePath)
-            
+            try FileManager.default.removeItem(at: filePath)
             return true
+        } catch {
+            print("Error deleting file: \(error.localizedDescription)")
+            return false
         }
-        catch {
-            print(error)
-        }
-        
-        return false
     }
     
     func deleteFile(at path: URL,withfolder fname: String, withfile name: String) -> Bool
@@ -164,6 +173,15 @@ class FAFileManager: NSObject {
         }
         
         return false
+    }
+    func moveFile(from originURL: URL, to destinationURL: URL) -> Bool {
+        do {
+            try FileManager.default.moveItem(at: originURL, to: destinationURL)
+            return true
+        } catch {
+            print("Error moving file: \(error.localizedDescription)")
+            return false
+        }
     }
     
     func moveFile(withFile name: String, inDirectory inPath: URL, toDirectory outPath: URL) -> Bool {
@@ -226,7 +244,7 @@ class FAFileManager: NSObject {
     }
     
     func changeExtensionWithSwift(withName: String, at path: URL, toExtension newExt: String) -> Bool{
-       
+        
         let names = withName.split(separator: ".")
         let newName = names[0] + "." + newExt
         
@@ -246,9 +264,9 @@ class FAFileManager: NSObject {
     
     func getAllFiles(at path: URL, foldername: String) -> [URL]
     {
-       let filepath = path.appendingPathComponent(foldername)
+        let filepath = path.appendingPathComponent(foldername)
         do {
-          let directoryContents =   try FileManager.default.contentsOfDirectory(at: filepath, includingPropertiesForKeys: nil, options: [])
+            let directoryContents =   try FileManager.default.contentsOfDirectory(at: filepath, includingPropertiesForKeys: nil, options: [])
             var pdfList = directoryContents.filter {
                 $0.pathExtension == "pdf"
             } as [URL]
