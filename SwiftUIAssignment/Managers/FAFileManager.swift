@@ -4,28 +4,31 @@
 //
 //  Created by KKNANXX on 6/16/24.
 //
+// factory pattern
+// Singlton Pattern
+
 
 import Foundation
-import UIKit
 
-class FAFileManager: NSObject{
+class FAFileManager: NSObject {
     
-    // singleton pattern
     static let shared: FAFileManager = {
         let instance = FAFileManager()
         return instance
     }()
+    // static let shared: FAFileManager = FAFileManager()
     
     private override init() {
         super.init()
     }
     
-    
     // URI vs URL
-    // can be Local file path vs can only be internet file path
-    func getDocumentDirectory() -> URL? {
-        if let docDirectotyURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            return docDirectotyURL
+    // ftp://jkfjkd/dkfjd // URI
+    // https://
+    func getDocumentDirectory() -> URL?
+    {
+        if let docDirectoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            return docDirectoryURL
         }
         return nil
     }
@@ -42,9 +45,9 @@ class FAFileManager: NSObject{
     }
     
     /*
-     - isWritable
-     - isReadble
-     - isExists
+      - isWritable
+      - isReadble
+      - isExists
      */
     
     func isWritable(file atPath: URL) -> Bool {
@@ -59,6 +62,20 @@ class FAFileManager: NSObject{
         return FileManager.default.fileExists(atPath: atPath.path)
     }
     
+    /*
+       Directory (folder)
+        - create directory (folder) - DONE
+        - get-all-file from directory
+        - delete file -  Done
+        - create file (write a file) - DONE
+        - read file - Done
+        - Update file (delete old file, create new file with same name)
+        - move file - Done
+        - rename file - Done
+        - Copy file -  Done
+        - changeExension (.txt, .png, .jpg, .jpeg) -  Done
+     */
+    
     func writeFileIn(containingString: String, to path: URL, with name: String) -> Bool {
         let filePath = path.path
         let completePath = filePath + "/" + name
@@ -72,7 +89,6 @@ class FAFileManager: NSObject{
         return FileManager.default.createFile(atPath: completePath, contents: containingData, attributes: nil)
     }
     
-    //  organize files into specific directories and handle data dynamically
     func writeFileIn(folder: String, containingData: Data, to path: URL, with name: String) -> Bool {
         let filePath = path.path + "/" + folder + "/" + name
         if self.writeDirectory(folder: folder, to: path) {}
@@ -94,6 +110,7 @@ class FAFileManager: NSObject{
                 }
             }
         }
+        
         return false
     }
     
@@ -114,7 +131,7 @@ class FAFileManager: NSObject{
         if let fileContent = FileManager.default.contents(atPath: completePath) {
             return fileContent
         }
-        
+
         return nil
     }
     
@@ -133,7 +150,7 @@ class FAFileManager: NSObject{
         return false
     }
     
-    func deleteFile(at path: URL, withfolder fname: String, withfile name: String) -> Bool
+    func deleteFile(at path: URL,withfolder fname: String, withfile name: String) -> Bool
     {
         var makeFilePath = path.appendingPathComponent(fname)
         makeFilePath = makeFilePath.appendingPathComponent(name)
@@ -209,7 +226,7 @@ class FAFileManager: NSObject{
     }
     
     func changeExtensionWithSwift(withName: String, at path: URL, toExtension newExt: String) -> Bool{
-        
+       
         let names = withName.split(separator: ".")
         let newName = names[0] + "." + newExt
         
@@ -229,9 +246,9 @@ class FAFileManager: NSObject{
     
     func getAllFiles(at path: URL, foldername: String) -> [URL]
     {
-        let filepath = path.appendingPathComponent(foldername)
+       let filepath = path.appendingPathComponent(foldername)
         do {
-            let directoryContents =   try FileManager.default.contentsOfDirectory(at: filepath, includingPropertiesForKeys: nil, options: [])
+          let directoryContents =   try FileManager.default.contentsOfDirectory(at: filepath, includingPropertiesForKeys: nil, options: [])
             var pdfList = directoryContents.filter {
                 $0.pathExtension == "pdf"
             } as [URL]
@@ -254,90 +271,12 @@ class FAFileManager: NSObject{
         catch {
             print(error)
         }
+        
         return []
     }
     
-    func saveImageToDocumentsDirectory(id: String, image: UIImage) -> String? {
-        guard let data = image.jpegData(compressionQuality: 1.0) else { return nil}
-        
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        
-        let fileName = "\(id).jpg"
-        let photoDirectory = documentsDirectory.appendingPathComponent("photos")
-        if !FileManager.default.fileExists(atPath: photoDirectory.path) {
-            do {
-                try FileManager.default.createDirectory(at: photoDirectory, withIntermediateDirectories: true, attributes: nil)
-            }
-            catch {
-                print(error)
-                return nil
-            }
-        }
-        let fileURL = photoDirectory.appendingPathComponent(fileName)
-        do {
-            try data.write(to: fileURL)
-            //             print("Image saved: \(fileURL)")
-            //             print("Image saved path: \(fileURL.path)")
-            //             return fileURL.absoluteString
-            return fileURL.path
-        } catch {
-            print("Error saving image: \(error)")
-        }
-        return nil
-    }
     
-    func loadImageFromDirectory(imageName: String) -> UIImage? {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let imagePath = documentsDirectory.appendingPathComponent("photos").appendingPathComponent(imageName)
-        
-        if FileManager.default.fileExists(atPath: imagePath.path) {
-            if let image = UIImage(contentsOfFile: imagePath.path) {
-                return image
-            } else {
-                print("Could not create UIImage from \(imagePath)")
-                return nil
-            }
-        } else {
-            print("No file found at \(imagePath)")
-            return nil
-        }
-    }
     
-    func saveVideoToDocumentsDirectory(id: String, url: URL) -> String? {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let fileName = "\(id).mov"
-        let videoDirectory = documentsDirectory.appendingPathComponent("videos")
-        
-        if !FileManager.default.fileExists(atPath: videoDirectory.path) {
-            do {
-                try FileManager.default.createDirectory(at: videoDirectory, withIntermediateDirectories: true, attributes: nil)
-            } catch {
-                print(error)
-                return nil
-            }
-        }
-        
-        let fileURL = videoDirectory.appendingPathComponent(fileName)
-        do {
-            try FileManager.default.copyItem(at: url, to: fileURL)
-            // print("Video saved: \(fileURL)")
-            return fileURL.path
-        } catch {
-            print("Error saving video: \(error)")
-        }
-        return nil
-    }
     
-    func loadVideoFromDirectory(videoName: String) -> URL? {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let videoPath = documentsDirectory.appendingPathComponent("videos").appendingPathComponent(videoName)
-        
-        if FileManager.default.fileExists(atPath: videoPath.path) {
-            return videoPath
-        } else {
-            print("No video file found at \(videoPath)")
-            return nil
-        }
-    }
-
 }
+

@@ -26,6 +26,13 @@ struct VideoDetailView: View {
             Text("Video by \(viewModel.video.user.name)")
                 .font(.title2)
                 .padding()
+            
+            Button(action: {
+                viewModel.bookmarkVideo()
+            }) {
+                Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
+                    .padding()
+            }
 
             Spacer()
         }

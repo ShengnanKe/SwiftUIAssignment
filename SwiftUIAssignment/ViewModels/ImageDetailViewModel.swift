@@ -12,13 +12,22 @@ class ImageDetailViewModel: ObservableObject {
     @Published var image: UIImage?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var isBookmarked: Bool = false
 
     let photo: MediaPhoto
     private let httpClient = HttpClient()
+    private let dbManager = DBManager.shared
 
     init(photo: MediaPhoto) {
         self.photo = photo
+        checkIfBookmarked()
         loadImage()
+    }
+
+    private func checkIfBookmarked() {
+        // Logic to check if the image is bookmarked
+        let bookmarks = dbManager.fetchData(entity: Images.self)
+        isBookmarked = bookmarks.contains { $0.imageFilePath == photo.src.large }
     }
 
     func loadImage() {
@@ -26,39 +35,46 @@ class ImageDetailViewModel: ObservableObject {
             errorMessage = "Invalid URL"
             return
         }
-        
+
         isLoading = true
         errorMessage = nil
 
-        let request = URLRequestBuilder(url: url)
-
+        let request = SimpleRequest(url: url)
         httpClient.fetchData(request: request) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {
                 case .success(let data):
-                    if let uiImage = UIImage(data: data) {
-                        self.image = uiImage
-                    } else {
-                        self.errorMessage = "Failed to load image"
-                    }
+                    self.image = UIImage(data: data)
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
             }
         }
     }
+
+    func bookmarkImage() {
+        if isBookmarked {
+            if let imageEntity = dbManager.fetchData(entity: Images.self).first(where: { $0.imageFilePath == photo.src.large }) {
+                dbManager.deleteImage(imagePath: imageEntity)
+            }
+        } else {
+            dbManager.addImageData(title: photo.alt, path: photo.src.large)
+        }
+        isBookmarked.toggle()
+    }
 }
 
-struct URLRequestBuilder: RequestBuilder {
-    let url: URL
 
+struct SimpleRequest: RequestBuilder {
     var baseUrl: String { "" }
     var path: String? { nil }
     var method: HTTPMethod { .get }
     var headers: [String: String]? { nil }
     var queryParam: [String: String]? { nil }
     var bodyParam: [String: Any]? { nil }
+
+    let url: URL
 
     func buildRequest() throws -> URLRequest {
         return URLRequest(url: url)

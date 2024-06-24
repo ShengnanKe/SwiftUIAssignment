@@ -8,11 +8,26 @@
 import SwiftUI
 
 struct BookmarkView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @StateObject private var viewModel = BookmarkViewModel()
 
-#Preview {
-    BookmarkView()
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(viewModel.bookmarkedImages, id: \.self) { image in
+                    NavigationLink(destination: BookmarkDetailView(bookmark: image)) {
+                        Text(image.imageDescription ?? "")
+                    }
+                }
+                ForEach(viewModel.bookmarkedVideos, id: \.self) { video in
+                    NavigationLink(destination: BookmarkDetailView(bookmark: video)) {
+                        Text(video.videoFileName ?? "")
+                    }
+                }
+            }
+            .navigationTitle("Bookmarks")
+            .onAppear {
+                viewModel.fetchBookmarks()
+            }
+        }
+    }
 }
