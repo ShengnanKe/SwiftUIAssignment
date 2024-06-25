@@ -12,17 +12,17 @@ class ImageSearchResultsViewModel: ObservableObject {
     @Published var images: [MediaPhoto] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-
+    
     private let httpClient = HttpClient()
     private var currentPage = 1
-    private var nextPage: String?
+    private var canLoadMorePages = true
     var query: String
 
     init(query: String) {
         self.query = query
     }
 
-    func searchImages(page: Int = 1) {
+    func searchImages(query: String, page: Int = 1) async {
         guard !query.isEmpty, !isLoading else { return }
 
         isLoading = true
@@ -30,28 +30,25 @@ class ImageSearchResultsViewModel: ObservableObject {
 
         let request = ImageSearchRequest(query: query, page: page)
 
-        httpClient.fetch(request: request) { (result: Result<ImageDataModel, AppError>) in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let response):
-                    if page == 1 {
-                        self.images = response.photos
-                    } else {
-                        self.images.append(contentsOf: response.photos)
-                    }
-                    self.currentPage = page
-                    self.nextPage = response.nextPage
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
-                }
+        do {
+            let response: ImageDataModel = try await httpClient.fetch(request: request)
+            if page == 1 {
+                self.images = response.photos
+            } else {
+                self.images.append(contentsOf: response.photos)
             }
+            self.currentPage = page
+            self.canLoadMorePages = response.photos.count == 20 // Assuming 20 items per page
+        } catch {
+            self.errorMessage = error.localizedDescription
         }
+        
+        isLoading = false
     }
 
-    func loadMoreImages() {
-        if let nextPage = nextPage, !isLoading {
-            searchImages(page: currentPage + 1)
+    func loadMoreImages() async {
+        if canLoadMorePages {
+            await searchImages(query: query, page: currentPage + 1)
         }
     }
 }

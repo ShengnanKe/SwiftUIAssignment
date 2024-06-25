@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ImageSearchResultsView: View {
     @ObservedObject var viewModel: ImageSearchResultsViewModel
+    var query: String
 
     var body: some View {
         ScrollView {
@@ -49,8 +50,20 @@ struct ImageSearchResultsView: View {
         .navigationTitle("Search Results")
         .onAppear {
             Task {
-                await viewModel.searchImages(query: "nature")
+                await viewModel.searchImages(query: query)
             }
         }
+    }
+}
+
+
+struct LazyView<Content: View>: View {
+    let build: () -> Content
+    init(_ build: @autoclosure @escaping () -> Content) {
+        self.build = build
+    }
+
+    var body: Content {
+        build()
     }
 }

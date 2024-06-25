@@ -28,23 +28,36 @@ class ImageDetailViewModel: ObservableObject {
 
     private func checkIfBookmarked() {
         let bookmarks = dbManager.fetchData(entity: Images.self)
-        isBookmarked = bookmarks.contains { $0.imageFilePath == photo.src.original }
+        isBookmarked = bookmarks.contains { $0.imageFileName == photo.src.original }
     }
 
     func bookmarkImage() {
         if isBookmarked {
-            if let imageEntity = dbManager.fetchData(entity: Images.self).first(where: { $0.imageFilePath == photo.src.original }) {
-                dbManager.deleteImage(imagePath: imageEntity)
+            if let imageEntity = dbManager.fetchData(entity: Images.self).first(where: { $0.imageFileName == photo.src.original }) {
+                dbManager.deleteImage(imageEntity: imageEntity)
             }
         } else {
-            let imageLink = photo.src.original
-            guard let url = URL(string: imageLink) else { return }
-            let fileName = url.lastPathComponent
-            guard let imagesDirectory = fileManager.getDirectory(for: "Images") else { return }
-            let destinationURL = imagesDirectory.appendingPathComponent(fileName)
-            dbManager.addImageData(title: photo.alt, path: destinationURL.path)
+            Task {
+                await saveImageToLocalStorage()
+            }
         }
         isBookmarked.toggle()
+    }
+
+    private func saveImageToLocalStorage() async {
+        let imageLink = photo.src.original
+        guard let url = URL(string: imageLink) else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let imagesDirectory = fileManager.getDirectory(for: "Images") else { return }
+            let fileName = url.lastPathComponent
+            let destinationURL = imagesDirectory.appendingPathComponent(fileName)
+            try data.write(to: destinationURL)
+            dbManager.addImageData(title: photo.alt, fileName: fileName)
+        } catch {
+            print("Failed to save image: \(error)")
+        }
     }
 
     func loadImage() async {

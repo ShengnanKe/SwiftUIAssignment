@@ -120,6 +120,19 @@ class HttpClient {
         }
     }
     
+    func fetch<T: Decodable>(request: RequestBuilder) async throws -> T {
+        return try await withCheckedThrowingContinuation { continuation in
+            fetch(request: request) { (result: Result<T, AppError>) in
+                switch result {
+                case .success(let data):
+                    continuation.resume(returning: data)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     func fetchData(request: RequestBuilder, completion: @escaping (Result<Data, AppError>) -> Void) {
         do {
             let request = try request.buildRequest()

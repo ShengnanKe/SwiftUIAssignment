@@ -29,18 +29,21 @@ class FAFileManager: NSObject {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     }
     
-    func getDirectory(for folderName: String) -> URL? {
-        guard let docDirectory = getDocumentDirectory() else { return nil }
-        let folderURL = docDirectory.appendingPathComponent(folderName)
-        if !FileManager.default.fileExists(atPath: folderURL.path) {
+    func getDirectory(for directoryName: String) -> URL? {
+        let fileManager = FileManager.default
+        guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let directoryURL = documentsDirectory.appendingPathComponent(directoryName)
+        if !fileManager.fileExists(atPath: directoryURL.path) {
             do {
-                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
+                try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
             } catch {
-                print("Error creating directory \(folderName): \(error.localizedDescription)")
+                print("Failed to create directory: \(error)")
                 return nil
             }
         }
-        return folderURL
+        return directoryURL
     }
     
     func libraryDirectoryPath() -> URL? {

@@ -3,11 +3,10 @@
     <entity name="Images" representedClassName="Images" syncable="YES">
         <attribute name="imageDescription" optional="YES" attributeType="String"/>
         <attribute name="imageFileName" optional="YES" attributeType="String"/>
-        <attribute name="imageFilePath" optional="YES" attributeType="String"/>
     </entity>
     <entity name="MediaBookmark" representedClassName="MediaBookmark" syncable="YES" codeGenerationType="class"/>
     <entity name="Videos" representedClassName="Videos" syncable="YES">
         <attribute name="videoFileName" optional="YES" attributeType="String"/>
-        <attribute name="videoFilePath" optional="YES" attributeType="String"/>
+        <attribute name="videoUserName" optional="YES" attributeType="String"/>
     </entity>
 </model>

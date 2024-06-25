@@ -2,7 +2,7 @@
 //  Videos+CoreDataProperties.swift
 //  SwiftUIAssignment
 //
-//  Created by KKNANXX on 6/23/24.
+//  Created by KKNANXX on 6/24/24.
 //
 //
 
@@ -16,7 +16,7 @@ extension Videos {
         return NSFetchRequest<Videos>(entityName: "Videos")
     }
 
-    @NSManaged public var videoFilePath: String?
+    @NSManaged public var videoUserName: String?
     @NSManaged public var videoFileName: String?
 
 }

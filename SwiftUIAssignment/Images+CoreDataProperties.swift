@@ -2,7 +2,7 @@
 //  Images+CoreDataProperties.swift
 //  SwiftUIAssignment
 //
-//  Created by KKNANXX on 6/23/24.
+//  Created by KKNANXX on 6/24/24.
 //
 //
 
@@ -17,7 +17,6 @@ extension Images {
     }
 
     @NSManaged public var imageFileName: String?
-    @NSManaged public var imageFilePath: String?
     @NSManaged public var imageDescription: String?
 
 }

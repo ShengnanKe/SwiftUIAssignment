@@ -28,8 +28,14 @@ class VideoDetailViewModel: ObservableObject {
     }
 
     private func checkIfBookmarked() {
-        let bookmarks = dbManager.fetchData(entity: Videos.self)
-        isBookmarked = bookmarks.contains { $0.videoFilePath == video.videoFiles.first?.link }
+        let bookmarks: [Videos] = dbManager.fetchData(entity: Videos.self)
+        if let videoFileName = URL(string: video.videoFiles.first?.link ?? "")?.lastPathComponent {
+            isBookmarked = bookmarks.contains { bookmark in
+                bookmark.videoFileName == videoFileName
+            }
+        } else {
+            isBookmarked = false
+        }
     }
 
     func loadVideo() {
@@ -76,16 +82,33 @@ class VideoDetailViewModel: ObservableObject {
 
     func bookmarkVideo() {
         if isBookmarked {
-            if let videoEntity = dbManager.fetchData(entity: Videos.self).first(where: { $0.videoFilePath == video.videoFiles.first?.link }) {
-                dbManager.deleteVideo(videoPath: videoEntity)
+            if let videoEntity = dbManager.fetchData(entity: Videos.self).first(where: { $0.videoFileName == URL(string: video.videoFiles.first?.link ?? "")?.lastPathComponent }) {
+                dbManager.deleteVideo(videoEntity: videoEntity)
             }
         } else {
             guard let videoLink = video.videoFiles.first?.link else { return }
             let fileName = URL(string: videoLink)?.lastPathComponent ?? UUID().uuidString + ".mp4"
             guard let videosDirectory = fileManager.getDirectory(for: "Videos") else { return }
             let destinationURL = videosDirectory.appendingPathComponent(fileName)
-            dbManager.addVideoData(userName: video.user.name, videoPath: destinationURL.path)
+            // Download video logic here if needed
+            dbManager.addVideoData(userName: video.user.name, fileName: fileName)
         }
         isBookmarked.toggle()
+    }
+
+}
+
+struct SimpleRequest: RequestBuilder {
+    var baseUrl: String { "" }
+    var path: String? { nil }
+    var method: HTTPMethod { .get }
+    var headers: [String: String]? { nil }
+    var queryParam: [String: String]? { nil }
+    var bodyParam: [String: Any]? { nil }
+
+    let url: URL
+
+    func buildRequest() throws -> URLRequest {
+        return URLRequest(url: url)
     }
 }

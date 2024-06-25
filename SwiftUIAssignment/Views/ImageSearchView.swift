@@ -41,7 +41,7 @@ struct ImageSearchView: View {
             }
             .navigationDestination(isPresented: $showResults) {
                 if let resultsViewModel = resultsViewModel {
-                    ImageSearchResultsView(viewModel: resultsViewModel)
+                    ImageSearchResultsView(viewModel: resultsViewModel, query: viewModel.searchQuery)
                 }
             }
         }

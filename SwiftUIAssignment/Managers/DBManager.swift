@@ -5,88 +5,79 @@
 //  Created by KKNANXX on 6/23/24.
 //
 
-import Foundation
 import CoreData
+import UIKit
 
-class DBManager: NSObject {
+class DBManager {
+    static let shared = DBManager()
     
-    var managedContext: NSManagedObjectContext!
+    private init() {}
     
-    static let shared: DBManager = {
-        let instance = DBManager()
-        return instance
-    }()
+    // Existing methods for handling images
+    func addImageData(title: String, fileName: String) {
+        let context = persistentContainer.viewContext
+        let imageEntity = Images(context: context)
+        imageEntity.imageDescription = title
+        imageEntity.imageFileName = fileName
+        saveContext()
+    }
     
-    private override init() {
-        super.init()
-        self.managedContext = PersistenceController.shared.container.viewContext
+    func getSQLiteFilePath() -> String? {
+        let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+        let sqlitePath = urls[0].appendingPathComponent("SwiftUIAssignment.sqlite").path
+        return sqlitePath
     }
     
     func fetchData<T: NSManagedObject>(entity: T.Type) -> [T] {
+        let context = persistentContainer.viewContext
         let request = T.fetchRequest()
         do {
-            return try managedContext.fetch(request) as? [T] ?? []
+            return try context.fetch(request) as! [T]
         } catch {
-            print("Failed to fetch data: \(error.localizedDescription)")
+            print("Failed to fetch data: \(error)")
             return []
         }
     }
     
-    func addImageData(title: String, path: String) -> Bool {
-        let imageEntity = Images(context: managedContext)
-        imageEntity.imageDescription = title
-        imageEntity.imageFilePath = path
-        
-        return saveContext()
+    func deleteImage(imageEntity: Images) {
+        let context = persistentContainer.viewContext
+        context.delete(imageEntity)
+        saveContext()
     }
     
-    func addVideoData(userName: String, videoPath: String) -> Bool {
-        let videoEntity = Videos(context: managedContext)
-        videoEntity.videoFileName = userName
-        videoEntity.videoFilePath = videoPath
-        
-        return saveContext()
+    func addVideoData(userName: String, fileName: String) {
+        let context = persistentContainer.viewContext
+        let videoEntity = Videos(context: context)
+        videoEntity.videoUserName = userName
+        videoEntity.videoFileName = fileName
+        saveContext()
     }
     
-    func deleteImage(imagePath: Images) -> Bool {
-        managedContext.delete(imagePath)
-        return saveContext()
+    func deleteVideo(videoEntity: Videos) {
+        let context = persistentContainer.viewContext
+        context.delete(videoEntity)
+        saveContext()
     }
     
-    func deleteVideo(videoPath: Videos) -> Bool {
-        managedContext.delete(videoPath)
-        return saveContext()
-    }
-    
-    func deleteAllData(forEntity entity: String) {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: entity)
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-
-        do {
-            try managedContext.execute(deleteRequest)
-            saveContext()
-            print("All data deleted for entity \(entity).")
-        } catch let error as NSError {
-            print("Could not delete all data in \(entity): \(error)")
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "SwiftUIAssignment")
+        container.loadPersistentStores { _, error in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
         }
-    }
+        return container
+    }()
     
-    private func saveContext() -> Bool {
-        do {
-            try managedContext.save()
-            print("Changes saved successfully.")
-            return true
-        } catch {
-            print("Failed to save context: \(error.localizedDescription)")
-            return false
+    func saveContext() {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
         }
-    }
-    
-    func printCoreDataSQLiteFilePath() {
-        guard let storeURL = managedContext.persistentStoreCoordinator?.persistentStores.first?.url else {
-            print("Failed to get the store URL")
-            return
-        }
-        print("Core Data SQLite file path: \(storeURL.path)")
     }
 }

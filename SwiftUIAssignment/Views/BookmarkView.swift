@@ -14,12 +14,12 @@ struct BookmarkView: View {
         NavigationView {
             List {
                 ForEach(viewModel.bookmarkedImages, id: \.self) { image in
-                    NavigationLink(destination: BookmarkDetailView(bookmark: image)) {
+                    NavigationLink(destination: BookmarkDetailView(bookmark: .image(image))) {
                         Text(image.imageDescription ?? "")
                     }
                 }
                 ForEach(viewModel.bookmarkedVideos, id: \.self) { video in
-                    NavigationLink(destination: BookmarkDetailView(bookmark: video)) {
+                    NavigationLink(destination: BookmarkDetailView(bookmark: .video(video))) {
                         Text(video.videoFileName ?? "")
                     }
                 }
@@ -27,6 +27,9 @@ struct BookmarkView: View {
             .navigationTitle("Bookmarks")
             .onAppear {
                 viewModel.fetchBookmarks()
+                if let sqlitePath = DBManager.shared.getSQLiteFilePath() {
+                    print("SQLite file path: \(sqlitePath)")
+                }
             }
         }
     }

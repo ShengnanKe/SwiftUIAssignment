@@ -11,12 +11,15 @@ import SwiftUI
 class ImageSearchViewModel: ObservableObject {
     @Published var searchQuery: String = ""
     @Published var errorMessage: String?
-    
+
     func performSearch() -> ImageSearchResultsViewModel {
         let resultsViewModel = ImageSearchResultsViewModel(query: searchQuery)
-        resultsViewModel.searchImages()
+        Task {
+            await resultsViewModel.searchImages(query: searchQuery)
+        }
         return resultsViewModel
     }
 }
+
 
 // The search should automatically when user stops typing for 3 seconds.
