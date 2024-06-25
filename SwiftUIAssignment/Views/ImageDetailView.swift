@@ -8,45 +8,29 @@
 import SwiftUI
 
 struct ImageDetailView: View {
-    @StateObject var viewModel: ImageDetailViewModel
+    @StateObject private var viewModel: ImageDetailViewModel
+
+    init(photo: MediaPhoto) {
+        _viewModel = StateObject(wrappedValue: ImageDetailViewModel(photo: photo))
+    }
 
     var body: some View {
         VStack {
-            if viewModel.isLoading {
-                ProgressView()
-                    .padding()
-            } else if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .padding()
-            } else if let image = viewModel.image {
+            if let image = viewModel.image {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFit()
-                    .padding()
+                    .aspectRatio(contentMode: .fit)
+            } else {
+                ProgressView()
             }
-
-            Text(viewModel.photo.photographer)
-                .font(.title)
-                .padding()
-
-            Text(viewModel.photo.alt)
-                .font(.body)
-                .padding()
-            
             Button(action: {
                 viewModel.bookmarkImage()
             }) {
                 Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
-                    .padding()
             }
-
-            Spacer()
+            .padding()
         }
-        .navigationTitle("Image Detail")
-        .onAppear {
-            viewModel.loadImage()
-        }
+        .navigationTitle("Image Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
-
