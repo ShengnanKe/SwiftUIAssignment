@@ -8,11 +8,7 @@
 import SwiftUI
 
 struct ImageDetailView: View {
-    @StateObject private var viewModel: ImageDetailViewModel
-    
-    init(photo: MediaPhoto) {
-        _viewModel = StateObject(wrappedValue: ImageDetailViewModel(photo: photo))
-    }
+    @StateObject var viewModel: ImageDetailViewModel
     
     var body: some View {
         VStack {

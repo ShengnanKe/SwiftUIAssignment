@@ -19,12 +19,13 @@ class VideoDetailViewModel: ObservableObject {
     private let httpClient = HttpClient()
     private let dbManager = DBManager.shared
     private let fileManager = FAFileManager.shared
-    private let cacheManager = FACacheManager()
 
     init(video: MediaVideo) {
         self.video = video
         checkIfBookmarked()
-        loadVideo()
+        Task {
+            await loadVideo()
+        }
     }
 
     private func checkIfBookmarked() {
@@ -38,46 +39,55 @@ class VideoDetailViewModel: ObservableObject {
         }
     }
 
-    func loadVideo() {
+    func loadVideo() async {
         guard let videoLink = video.videoFiles.first?.link, let url = URL(string: videoLink) else {
             errorMessage = "Invalid URL"
             return
         }
 
-        // Check if video is cached
-        if let cachedURL = cacheManager.getVideoURL(forKey: videoLink) {
-            videoFileURL = cachedURL
-            return
-        }
-
-        // Download the video if not cached
+        // Set loading state
         isLoading = true
         errorMessage = nil
 
-        httpClient.download(request: SimpleRequest(url: url)) { result in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let tempURL):
-                    let fileName = url.lastPathComponent
-                    guard let videosDirectory = self.fileManager.getDirectory(for: "Videos") else {
-                        self.errorMessage = "Failed to access videos directory"
-                        return
-                    }
-                    let destinationURL = videosDirectory.appendingPathComponent(fileName)
-                    
-                    do {
-                        try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-                        self.videoFileURL = destinationURL
-                        self.cacheManager.saveVideoURL(destinationURL, forKey: videoLink)
-                    } catch {
-                        self.errorMessage = "Failed to save downloaded file: \(error.localizedDescription)"
-                    }
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
-                }
-            }
+        do {
+            let request = try SimpleRequest(url: url).buildRequest()
+            let tempURL = try await httpClient.download(request: request)
+            await handleDownloadedVideo(tempURL: tempURL, originalURL: url)
+        } catch {
+            isLoading = false
+            errorMessage = error.localizedDescription
         }
+    }
+
+    private func handleDownloadedVideo(tempURL: URL, originalURL: URL) async {
+        let fileName = originalURL.lastPathComponent
+        guard let videosDirectory = fileManager.getDirectory(for: "Videos") else {
+            errorMessage = "Failed to access videos directory"
+            return
+        }
+
+        // Ensure the directory exists
+        do {
+            try FileManager.default.createDirectory(at: videosDirectory, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            errorMessage = "Failed to create videos directory: \(error.localizedDescription)"
+            return
+        }
+
+        let destinationURL = videosDirectory.appendingPathComponent(fileName)
+
+        do {
+            // Check if the file already exists and handle accordingly
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+            videoFileURL = destinationURL
+        } catch {
+            errorMessage = "Failed to save downloaded file: \(error.localizedDescription)"
+        }
+
+        isLoading = false
     }
 
     func bookmarkVideo() {
@@ -95,7 +105,6 @@ class VideoDetailViewModel: ObservableObject {
         }
         isBookmarked.toggle()
     }
-
 }
 
 struct SimpleRequest: RequestBuilder {

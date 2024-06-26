@@ -13,13 +13,16 @@ struct VideoDetailView: View {
 
     var body: some View {
         VStack {
-            if let videoURL = viewModel.videoFileURL {
+            if viewModel.isLoading {
+                ProgressView()
+                    .padding()
+            } else if let videoURL = viewModel.videoFileURL {
                 VideoPlayer(player: AVPlayer(url: videoURL))
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .padding()
             } else {
-                Text("No video available")
+                Text(viewModel.errorMessage ?? "No video available")
                     .padding()
             }
 
@@ -38,5 +41,10 @@ struct VideoDetailView: View {
         }
         .navigationTitle("Video Details")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            Task {
+                await viewModel.loadVideo()
+            }
+        }
     }
 }

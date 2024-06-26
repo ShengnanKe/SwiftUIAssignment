@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct BookmarkView: View {
-    @StateObject private var viewModel = BookmarkViewModel()
+    @ObservedObject var viewModel: BookmarkViewModel
 
     var body: some View {
         NavigationView {
@@ -27,9 +27,6 @@ struct BookmarkView: View {
             .navigationTitle("Bookmarks")
             .onAppear {
                 viewModel.fetchBookmarks()
-                if let sqlitePath = DBManager.shared.getSQLiteFilePath() {
-                    print("SQLite file path: \(sqlitePath)")
-                }
             }
         }
     }

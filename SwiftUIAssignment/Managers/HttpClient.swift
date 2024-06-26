@@ -184,4 +184,15 @@ class HttpClient {
             completion(.failure(.badUrl))
         }
     }
+    
+    func download(request: URLRequest) async throws -> URL {
+        let (tempURL, response) = try await URLSession.shared.download(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return tempURL
+    }
+
 }

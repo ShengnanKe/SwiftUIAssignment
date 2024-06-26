@@ -14,9 +14,8 @@ struct ImageSearchResultsView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
-                ForEach(viewModel.images.indices, id: \.self) { index in
-                    let photo = viewModel.images[index]
-                    NavigationLink(destination: LazyView(ImageDetailView(photo: photo))) {
+                ForEach(viewModel.images, id: \.id) { photo in
+                    NavigationLink(destination: LazyView(ImageDetailView(viewModel: ImageDetailViewModel(photo: photo)))) {
                         AsyncImage(url: URL(string: photo.src.small)) { phase in
                             switch phase {
                             case .empty:
@@ -36,7 +35,7 @@ struct ImageSearchResultsView: View {
                             }
                         }
                         .onAppear {
-                            if index == viewModel.images.count - 1 {
+                            if photo == viewModel.images.last {
                                 Task {
                                     await viewModel.loadMoreImages()
                                 }
@@ -55,7 +54,6 @@ struct ImageSearchResultsView: View {
         }
     }
 }
-
 
 struct LazyView<Content: View>: View {
     let build: () -> Content

@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import CoreData
 
 @MainActor
 class BookmarkViewModel: ObservableObject {
     @Published var bookmarkedImages: [Images] = []
     @Published var bookmarkedVideos: [Videos] = []
     private let dbManager = DBManager.shared
+    private let context: NSManagedObjectContext
+
+    init(context: NSManagedObjectContext) {
+        self.context = context
+        fetchBookmarks()
+    }
 
     func fetchBookmarks() {
         bookmarkedImages = dbManager.fetchData(entity: Images.self)
