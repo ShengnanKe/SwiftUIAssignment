@@ -13,16 +13,19 @@ class VideoSearchViewModel: ObservableObject {
     @Published var errorMessage: String?
     private var debounceTimer: Timer?
 
-    func performSearch() -> VideoSearchResultsViewModel {
+    func performSearch() async -> VideoSearchResultsViewModel {
         let resultsViewModel = VideoSearchResultsViewModel(query: searchQuery)
-        resultsViewModel.searchVideos()
+        await resultsViewModel.searchVideos()
         return resultsViewModel
     }
 
     func searchWithDelay() {
         debounceTimer?.invalidate()
-        debounceTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
-            self.performSearch()
+        debounceTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+            Task {
+                guard let self = self else { return }
+                await self.performSearch()
+            }
         }
     }
 }

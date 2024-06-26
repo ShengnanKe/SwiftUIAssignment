@@ -133,6 +133,16 @@ class HttpClient {
         }
     }
     
+    func fetch<T: Decodable>(request: URLRequest) async throws -> T {
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+    
     func fetchData(request: RequestBuilder, completion: @escaping (Result<Data, AppError>) -> Void) {
         do {
             let request = try request.buildRequest()

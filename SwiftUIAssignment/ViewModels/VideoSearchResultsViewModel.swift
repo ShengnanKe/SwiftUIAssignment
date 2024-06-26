@@ -22,36 +22,40 @@ class VideoSearchResultsViewModel: ObservableObject {
         self.query = query
     }
 
-    func searchVideos(page: Int = 1) {
+    func searchVideos(page: Int = 1) async {
         guard !query.isEmpty, !isLoading else { return }
 
         isLoading = true
         errorMessage = nil
 
-        let request = VideoSearchRequest(query: query, page: page)
+        let request: URLRequest
+        do {
+            request = try VideoSearchRequest(query: query, page: page).buildRequest()
+        } catch {
+            self.isLoading = false
+            self.errorMessage = error.localizedDescription
+            return
+        }
 
-        httpClient.fetch(request: request) { (result: Result<VideoDataModel, AppError>) in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let response):
-                    if page == 1 {
-                        self.videos = response.videos
-                    } else {
-                        self.videos.append(contentsOf: response.videos)
-                    }
-                    self.currentPage = page
-                    self.nextPage = response.nextPage
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
-                }
+        do {
+            let response: VideoDataModel = try await httpClient.fetch(request: request)
+            self.isLoading = false
+            if page == 1 {
+                self.videos = response.videos
+            } else {
+                self.videos.append(contentsOf: response.videos)
             }
+            self.currentPage = page
+            self.nextPage = response.nextPage
+        } catch {
+            self.isLoading = false
+            self.errorMessage = error.localizedDescription
         }
     }
 
-    func loadMoreVideos() {
+    func loadMoreVideos() async {
         if let nextPage = nextPage, !isLoading {
-            searchVideos(page: currentPage + 1)
+            await searchVideos(page: currentPage + 1)
         }
     }
 }

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct VideoSearchView: View {
     @StateObject private var viewModel = VideoSearchViewModel()
-    @State private var searchText = ""
     @State private var showResults = false
     @State private var resultsViewModel: VideoSearchResultsViewModel?
 
@@ -21,7 +20,7 @@ struct VideoSearchView: View {
                     .fontWeight(.bold)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
@@ -36,8 +35,10 @@ struct VideoSearchView: View {
             .searchable(text: $viewModel.searchQuery, prompt: "Search for videos")
             .onSubmit(of: .search) {
                 if !viewModel.searchQuery.isEmpty {
-                    resultsViewModel = viewModel.performSearch()
-                    showResults = true
+                    Task {
+                        resultsViewModel = await viewModel.performSearch()
+                        showResults = true
+                    }
                 }
             }
             .navigationDestination(isPresented: $showResults) {

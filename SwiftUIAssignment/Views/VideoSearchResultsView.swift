@@ -33,7 +33,9 @@ struct VideoSearchResultsView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .onAppear {
                                     if index == viewModel.videos.count - 1 {
-                                        viewModel.loadMoreVideos()
+                                        Task {
+                                            await viewModel.loadMoreVideos()
+                                        }
                                     }
                                 }
                         }
@@ -49,7 +51,9 @@ struct VideoSearchResultsView: View {
         }
         .navigationTitle("Search Results")
         .onAppear {
-            viewModel.searchVideos()
+            Task {
+                await viewModel.searchVideos()
+            }
         }
     }
 }
