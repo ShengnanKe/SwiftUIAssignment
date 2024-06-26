@@ -31,7 +31,7 @@ class ImageSearchResultsViewModel: ObservableObject {
         let request = ImageSearchRequest(query: query, page: page)
 
         do {
-            let response: ImageDataModel = try await httpClient.fetch(request: request)
+            let response: ImageDataModel = try await httpClient.fetch(requestBuilder: request)
             if page == 1 {
                 self.images = response.photos
             } else {

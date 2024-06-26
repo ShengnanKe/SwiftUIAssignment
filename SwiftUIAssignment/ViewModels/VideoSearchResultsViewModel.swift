@@ -28,18 +28,10 @@ class VideoSearchResultsViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        let request: URLRequest
         do {
-            request = try VideoSearchRequest(query: query, page: page).buildRequest()
-        } catch {
-            self.isLoading = false
-            self.errorMessage = error.localizedDescription
-            return
-        }
-
-        do {
-            let response: VideoDataModel = try await httpClient.fetch(request: request)
-            self.isLoading = false
+            let request = VideoSearchRequest(query: query, page: page)
+            let response: VideoDataModel = try await httpClient.fetch(requestBuilder: request)
+            isLoading = false
             if page == 1 {
                 self.videos = response.videos
             } else {
@@ -48,8 +40,8 @@ class VideoSearchResultsViewModel: ObservableObject {
             self.currentPage = page
             self.nextPage = response.nextPage
         } catch {
-            self.isLoading = false
-            self.errorMessage = error.localizedDescription
+            isLoading = false
+            errorMessage = error.localizedDescription
         }
     }
 

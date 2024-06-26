@@ -50,8 +50,8 @@ class VideoDetailViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let request = try SimpleRequest(url: url).buildRequest()
-            let tempURL = try await httpClient.download(request: request)
+            let requestBuilder = SimpleRequest(url: url)
+            let tempURL = try await httpClient.download(requestBuilder: requestBuilder)
             await handleDownloadedVideo(tempURL: tempURL, originalURL: url)
         } catch {
             isLoading = false

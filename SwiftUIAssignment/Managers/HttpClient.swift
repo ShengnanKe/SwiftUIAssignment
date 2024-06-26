@@ -89,51 +89,39 @@ extension RequestBuilder {
 
 class HttpClient {
     
-    func fetch<T: Decodable>(request: RequestBuilder, completion: @escaping (Result<T, AppError>) -> Void) {
-        do {
-            let request = try request.buildRequest()
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    completion(.failure(.serverError(error)))
-                    return
-                }
-                
-                guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
-                    completion(.failure(.badResponse))
-                    return
-                }
-                
-                guard let data = data else {
-                    completion(.failure(.badData))
-                    return
-                }
-                
-                do {
-                    let result = try JSONDecoder().decode(T.self, from: data)
-                    completion(.success(result))
-                } catch {
-                    completion(.failure(.decoderError(error)))
-                }
-            }.resume()
-        } catch {
-            completion(.failure(.badUrl))
-        }
-    }
-    
-    func fetch<T: Decodable>(request: RequestBuilder) async throws -> T {
-        return try await withCheckedThrowingContinuation { continuation in
-            fetch(request: request) { (result: Result<T, AppError>) in
-                switch result {
-                case .success(let data):
-                    continuation.resume(returning: data)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
-                }
-            }
-        }
-    }
-    
-    func fetch<T: Decodable>(request: URLRequest) async throws -> T {
+//    func fetch<T: Decodable>(request: RequestBuilder, completion: @escaping (Result<T, AppError>) -> Void) {
+//        do {
+//            let request = try request.buildRequest()
+//            URLSession.shared.dataTask(with: request) { data, response, error in
+//                if let error = error {
+//                    completion(.failure(.serverError(error)))
+//                    return
+//                }
+//                
+//                guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+//                    completion(.failure(.badResponse))
+//                    return
+//                }
+//                
+//                guard let data = data else {
+//                    completion(.failure(.badData))
+//                    return
+//                }
+//                
+//                do {
+//                    let result = try JSONDecoder().decode(T.self, from: data)
+//                    completion(.success(result))
+//                } catch {
+//                    completion(.failure(.decoderError(error)))
+//                }
+//            }.resume()
+//        } catch {
+//            completion(.failure(.badUrl))
+//        }
+//    }
+//    
+    func fetch<T: Decodable>(requestBuilder: RequestBuilder) async throws -> T {
+        let request = try requestBuilder.buildRequest()
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -142,6 +130,18 @@ class HttpClient {
         
         return try JSONDecoder().decode(T.self, from: data)
     }
+    
+    
+//    
+//    func fetch<T: Decodable>(request: URLRequest) async throws -> T {
+//        let (data, response) = try await URLSession.shared.data(for: request)
+//        
+//        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+//            throw URLError(.badServerResponse)
+//        }
+//        
+//        return try JSONDecoder().decode(T.self, from: data)
+//    }
     
     func fetchData(request: RequestBuilder, completion: @escaping (Result<Data, AppError>) -> Void) {
         do {
@@ -169,33 +169,44 @@ class HttpClient {
         }
     }
     
-    func download(request: RequestBuilder, completion: @escaping (Result<URL, AppError>) -> Void) {
-        do {
-            let request = try request.buildRequest()
-            URLSession.shared.downloadTask(with: request) { localURL, response, error in
-                if let error = error {
-                    completion(.failure(.serverError(error)))
-                    return
-                }
-                
-                guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
-                    completion(.failure(.badResponse))
-                    return
-                }
-                
-                guard let localURL = localURL else {
-                    completion(.failure(.badData))
-                    return
-                }
-                
-                completion(.success(localURL))
-            }.resume()
-        } catch {
-            completion(.failure(.badUrl))
-        }
-    }
+//    func download(request: RequestBuilder, completion: @escaping (Result<URL, AppError>) -> Void) {
+//        do {
+//            let request = try request.buildRequest()
+//            URLSession.shared.downloadTask(with: request) { localURL, response, error in
+//                if let error = error {
+//                    completion(.failure(.serverError(error)))
+//                    return
+//                }
+//                
+//                guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+//                    completion(.failure(.badResponse))
+//                    return
+//                }
+//                
+//                guard let localURL = localURL else {
+//                    completion(.failure(.badData))
+//                    return
+//                }
+//                
+//                completion(.success(localURL))
+//            }.resume()
+//        } catch {
+//            completion(.failure(.badUrl))
+//        }
+//    }
     
-    func download(request: URLRequest) async throws -> URL {
+//    func download(request: URLRequest) async throws -> URL {
+//        let (tempURL, response) = try await URLSession.shared.download(for: request)
+//        
+//        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+//            throw URLError(.badServerResponse)
+//        }
+//        
+//        return tempURL
+//    }
+    
+    func download(requestBuilder: RequestBuilder) async throws -> URL {
+        let request = try requestBuilder.buildRequest()
         let (tempURL, response) = try await URLSession.shared.download(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -204,5 +215,5 @@ class HttpClient {
         
         return tempURL
     }
-
+    
 }

@@ -15,19 +15,18 @@ struct ImageSearchView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Search Images")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                SearchHeader(title: "Search Images", errorMessage: viewModel.errorMessage)
                 
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                }
-
                 Spacer()
+                
+                NavigationLink(
+                    destination: resultsViewModel.map {
+                        ImageSearchResultsView(viewModel: $0, query: viewModel.searchQuery)
+                    },
+                    isActive: $showResults
+                ) {
+                    EmptyView()
+                }
             }
             .padding()
             .navigationTitle("Image Search Page")
@@ -35,13 +34,10 @@ struct ImageSearchView: View {
             .searchable(text: $viewModel.searchQuery, prompt: "Search for images")
             .onSubmit(of: .search) {
                 if !viewModel.searchQuery.isEmpty {
-                    resultsViewModel = viewModel.performSearch()
-                    showResults = true
-                }
-            }
-            .navigationDestination(isPresented: $showResults) {
-                if let resultsViewModel = resultsViewModel {
-                    ImageSearchResultsView(viewModel: resultsViewModel, query: viewModel.searchQuery)
+                    Task {
+                        resultsViewModel = await viewModel.performSearch()
+                        showResults = true
+                    }
                 }
             }
         }

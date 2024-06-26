@@ -15,19 +15,18 @@ struct VideoSearchView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Search Videos")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                }
-
+                SearchHeader(title: "Search Videos", errorMessage: viewModel.errorMessage)
+                
                 Spacer()
+                
+                NavigationLink(
+                    destination: resultsViewModel.map {
+                        VideoSearchResultsView(viewModel: $0)
+                    },
+                    isActive: $showResults
+                ) {
+                    EmptyView()
+                }
             }
             .padding()
             .navigationTitle("Video Search Page")
@@ -39,11 +38,6 @@ struct VideoSearchView: View {
                         resultsViewModel = await viewModel.performSearch()
                         showResults = true
                     }
-                }
-            }
-            .navigationDestination(isPresented: $showResults) {
-                if let resultsViewModel = resultsViewModel {
-                    VideoSearchResultsView(viewModel: resultsViewModel)
                 }
             }
         }
