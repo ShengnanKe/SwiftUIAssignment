@@ -9,6 +9,6 @@ import Foundation
 
 struct MediaBookmarkModel {
     var name: String
-    var url: String
+    //var url: String
     var filePath: String
 }

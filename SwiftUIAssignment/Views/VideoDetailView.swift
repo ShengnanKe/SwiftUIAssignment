@@ -26,7 +26,7 @@ struct VideoDetailView: View {
                     .padding()
             }
 
-            Text("Video by \(viewModel.video.user.name)")
+            Text("\(viewModel.video.user.name)")
                 .font(.title2)
                 .padding()
 
