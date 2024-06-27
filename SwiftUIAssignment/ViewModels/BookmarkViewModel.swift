@@ -23,7 +23,6 @@ class BookmarkViewModel: ObservableObject {
         bookmarkedImages = dbManager.fetchData(entity: Images.self)
         bookmarkedVideos = dbManager.fetchData(entity: Videos.self)
 
-        // Print paths of downloaded images
         print("Downloaded Image Paths:")
         for image in bookmarkedImages {
             if let imagePath = image.imageFileName {

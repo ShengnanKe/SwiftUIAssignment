@@ -20,16 +20,11 @@ class ImageDetailViewModel: ObservableObject {
     
     init(photo: MediaPhoto) {
         self.photo = photo
-        //checkIfBookmarked()
         Task {
             await loadImage()
         }
     }
     
-    //    private func checkIfBookmarked() {
-    //        let bookmarks = dbManager.fetchData(entity: Images.self)
-    //        isBookmarked = bookmarks.contains { $0.imageFileName == photo.src.original }
-    //    }
     
     func bookmarkImage(context: NSManagedObjectContext) {
         dbManager.setContext(context)

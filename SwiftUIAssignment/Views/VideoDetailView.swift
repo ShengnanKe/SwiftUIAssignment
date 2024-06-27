@@ -29,7 +29,6 @@ struct VideoDetailView: View {
                 .padding()
 
             Button(action: {
-//                viewModel.isBookmarked.toggle()
                 Task {
                     await viewModel.bookmarkVideo(context: viewContext)
                 }

@@ -48,9 +48,9 @@ class VideoDetailViewModel: ObservableObject {
                 try FileManager.default.removeItem(at: destinationURL)
             }
             try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-//            DispatchQueue.main.async {
-//                self.videoFileURL = destinationURL
-//            }
+            DispatchQueue.main.async {
+                self.videoFileURL = destinationURL
+            }
         } catch {
             DispatchQueue.main.async {
                 self.errorMessage = "Failed to save downloaded file: \(error.localizedDescription)"
