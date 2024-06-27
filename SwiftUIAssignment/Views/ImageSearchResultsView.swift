@@ -8,23 +8,31 @@
 import SwiftUI
 
 struct ImageSearchResultsView: View {
-    @ObservedObject var viewModel: ImageSearchResultsViewModel
-//    var query: String
+    @StateObject private var viewModel: ImageSearchResultsViewModel
+
+    init(searchQuery: String) {
+        _viewModel = StateObject(wrappedValue: ImageSearchResultsViewModel(query: searchQuery))
+    }
 
     var body: some View {
         ScrollView {
-            LazyGrid(items: viewModel.images) { photo in
-                NavigationLink(destination: LazyView(ImageDetailView(viewModel: ImageDetailViewModel(photo: photo)))) {
-                    AsyncImageLoader(url: URL(string: photo.src.small))
-                        .onAppear {
-                            if photo == viewModel.images.last {
-                                Task {
-                                    await viewModel.loadMoreImages()
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
+                ForEach(viewModel.images, id: \.id) { photo in
+                    NavigationLink(destination: ImageDetailView(photo: photo)) {
+                        AsyncImageLoader(url: URL(string: photo.src.small))
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .onAppear {
+                                if photo == viewModel.images.last {
+                                    Task {
+                                        await viewModel.loadMoreImages()
+                                    }
                                 }
                             }
-                        }
+                    }
                 }
             }
+            .padding()
         }
         .navigationTitle("Search Results")
         .onAppear {
@@ -35,13 +43,4 @@ struct ImageSearchResultsView: View {
     }
 }
 
-struct LazyView<Content: View>: View {
-    let build: () -> Content
-    init(_ build: @autoclosure @escaping () -> Content) {
-        self.build = build
-    }
 
-    var body: Content {
-        build()
-    }
-}

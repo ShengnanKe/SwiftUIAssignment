@@ -8,10 +8,9 @@
 import SwiftUI
 
 struct VideoSearchView: View {
-    @StateObject private var viewModel = VideoSearchViewModel()
     @State private var showResults = false
-    @State private var resultsViewModel: VideoSearchResultsViewModel?
-
+    @State private var searchQuery: String = ""
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -20,9 +19,7 @@ struct VideoSearchView: View {
                 Spacer()
                 
                 NavigationLink(
-                    destination: resultsViewModel.map {
-                        VideoSearchResultsView(viewModel: $0)
-                    },
+                    destination: VideoSearchResultsView(searchQuery: searchQuery),
                     isActive: $showResults
                 ) {
                     EmptyView()
@@ -31,18 +28,16 @@ struct VideoSearchView: View {
             .padding()
             .navigationTitle("Video Search Page")
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchQuery, prompt: "Search for videos")
+            .searchable(text: $searchQuery, prompt: "Search for videos")
             .onSubmit(of: .search) {
-                if !viewModel.searchQuery.isEmpty {
-                    Task {
-                        resultsViewModel = await viewModel.performSearch()
-                        showResults = true
-                    }
+                if !searchQuery.isEmpty {
+                    showResults = true
                 }
             }
         }
     }
 }
+
 
 struct VideoSearchView_Previews: PreviewProvider {
     static var previews: some View {

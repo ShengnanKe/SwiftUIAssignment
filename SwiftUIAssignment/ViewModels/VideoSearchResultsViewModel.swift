@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@MainActor
 class VideoSearchResultsViewModel: ObservableObject {
     @Published var videos: [MediaVideo] = []
     @Published var isLoading: Bool = false

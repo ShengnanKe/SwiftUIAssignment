@@ -10,7 +10,7 @@ import AVKit
 
 struct VideoDetailView: View {
     @ObservedObject var viewModel: VideoDetailViewModel
-
+    
     var body: some View {
         VStack {
             if viewModel.isLoading {
@@ -25,26 +25,23 @@ struct VideoDetailView: View {
                 Text(viewModel.errorMessage ?? "No video available")
                     .padding()
             }
-
+            
             Text("\(viewModel.video.user.name)")
                 .font(.title2)
                 .padding()
-
+            
             Button(action: {
-                viewModel.bookmarkVideo()
+                Task{
+                    await viewModel.bookmarkVideo()
+                }
             }) {
                 Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
                     .padding()
             }
-
+            
             Spacer()
         }
         .navigationTitle("Video Details")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            Task {
-                await viewModel.loadVideo()
-            }
-        }
     }
 }

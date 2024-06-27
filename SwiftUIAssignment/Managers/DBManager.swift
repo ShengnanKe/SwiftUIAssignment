@@ -30,7 +30,7 @@ class DBManager {
     
     func fetchData<T: NSManagedObject>(entity: T.Type) -> [T] {
         guard let context = context else {
-            print("Context is not set up.")
+            //print("Context is not set up.")
             return []
         }
         let request = T.fetchRequest()
@@ -68,6 +68,10 @@ class DBManager {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+    }
+    
+    func setContext(_ context: NSManagedObjectContext) {
+        self.context = context
     }
     
     

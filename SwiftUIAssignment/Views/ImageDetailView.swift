@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct ImageDetailView: View {
+    @Environment(\.managedObjectContext) private var viewContext
     @StateObject var viewModel: ImageDetailViewModel
+    
+    init(photo: MediaPhoto) {
+        _viewModel = StateObject(wrappedValue: ImageDetailViewModel(photo: photo))
+    }
     
     var body: some View {
         VStack {
@@ -29,7 +34,7 @@ struct ImageDetailView: View {
                 .padding()
             
             Button(action: {
-                viewModel.bookmarkImage()
+                viewModel.bookmarkImage(context: viewContext)
             }) {
                 Image(systemName: viewModel.isBookmarked ? "bookmark.fill" : "bookmark")
             }

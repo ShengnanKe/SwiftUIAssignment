@@ -8,21 +8,25 @@
 import SwiftUI
 
 struct VideoSearchResultsView: View {
-    @ObservedObject var viewModel: VideoSearchResultsViewModel
-
+    @StateObject var viewModel: VideoSearchResultsViewModel
+    
+    init(searchQuery: String) {
+        _viewModel = StateObject(wrappedValue: VideoSearchResultsViewModel(query: searchQuery))
+    }
+    
     var body: some View {
         VStack {
             if viewModel.isLoading && viewModel.videos.isEmpty {
                 ProgressView()
                     .padding()
             }
-
+            
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
                     .padding()
             }
-
+            
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
                     ForEach(viewModel.videos.indices, id: \.self) { index in
@@ -43,7 +47,7 @@ struct VideoSearchResultsView: View {
                 }
                 .padding()
             }
-
+            
             if viewModel.isLoading && !viewModel.videos.isEmpty {
                 ProgressView()
                     .padding()
@@ -58,8 +62,3 @@ struct VideoSearchResultsView: View {
     }
 }
 
-struct VideoSearchResultsView_Previews: PreviewProvider {
-    static var previews: some View {
-        VideoSearchResultsView(viewModel: VideoSearchResultsViewModel(query: "nature"))
-    }
-}
