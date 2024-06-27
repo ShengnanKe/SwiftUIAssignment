@@ -59,6 +59,7 @@ class VideoDetailViewModel: ObservableObject {
     }
     
     func bookmarkVideo(context: NSManagedObjectContext) async {
+        isBookmarked = true
         dbManager.setContext(context)
         
         guard let videoLink = video.videoFiles.first?.link, let url = URL(string: videoLink) else {

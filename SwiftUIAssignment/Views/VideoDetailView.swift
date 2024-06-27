@@ -14,8 +14,6 @@ struct VideoDetailView: View {
     
     var body: some View {
         VStack {
-     
-            
             if let videoLink = viewModel.video.videoFiles.first?.link, let videoURL = URL(string: videoLink) {
                 VideoPlayer(player: AVPlayer(url: videoURL))
                     .aspectRatio(contentMode: .fit)

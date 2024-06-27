@@ -17,7 +17,7 @@ struct VideoSearchResultsView: View {
     var body: some View {
         VStack {
             if viewModel.isLoading && viewModel.videos.isEmpty {
-                ProgressView()
+                LoadingView()
                     .padding()
             }
             

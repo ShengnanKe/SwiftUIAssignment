@@ -33,8 +33,7 @@ class ImageDetailViewModel: ObservableObject {
     
     func bookmarkImage(context: NSManagedObjectContext) {
         dbManager.setContext(context)
-        
-        
+        isBookmarked = true
         Task {
             await saveImageToLocalStorage(context: context)
         }
