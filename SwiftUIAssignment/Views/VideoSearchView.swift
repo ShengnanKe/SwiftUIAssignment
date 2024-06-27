@@ -15,7 +15,7 @@ struct VideoSearchView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                SearchHeader(title: "Search Videos", errorMessage: viewModel.errorMessage)
+                SearchHeader(title: "Search Videos")
                 
                 Spacer()
                 

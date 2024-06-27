@@ -19,7 +19,6 @@
 		44C42F7A2C1FF73A00754E3C /* FAFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C42F792C1FF73A00754E3C /* FAFileManager.swift */; };
 		44C42F842C2013FF00754E3C /* BookmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C42F832C2013FF00754E3C /* BookmarkView.swift */; };
 		44E32F402C23F95D00ABCCD6 /* HttpClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F3F2C23F95D00ABCCD6 /* HttpClient.swift */; };
-		44E32F422C2408B500ABCCD6 /* ImageSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F412C2408B500ABCCD6 /* ImageSearchViewModel.swift */; };
 		44E32F462C2409E500ABCCD6 /* VideoSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F452C2409E500ABCCD6 /* VideoSearchView.swift */; };
 		44E32F482C240A6B00ABCCD6 /* ImageDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F472C240A6B00ABCCD6 /* ImageDataModel.swift */; };
 		44E32F502C248FF800ABCCD6 /* ImageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F4F2C248FF800ABCCD6 /* ImageDetailView.swift */; };
@@ -42,6 +41,10 @@
 		44E32F942C2A9BDF00ABCCD6 /* Videos+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F902C2A9BDF00ABCCD6 /* Videos+CoreDataProperties.swift */; };
 		44E32F962C2BD6AF00ABCCD6 /* SearchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F952C2BD6AF00ABCCD6 /* SearchHeader.swift */; };
 		44E32F982C2BD6CE00ABCCD6 /* SearchResultNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F972C2BD6CE00ABCCD6 /* SearchResultNavigation.swift */; };
+		44E32F9A2C2C070800ABCCD6 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F992C2C070800ABCCD6 /* LoadingView.swift */; };
+		44E32F9C2C2C072E00ABCCD6 /* ResizableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F9B2C2C072E00ABCCD6 /* ResizableImageView.swift */; };
+		44E32F9E2C2C082000ABCCD6 /* LazyGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F9D2C2C082000ABCCD6 /* LazyGrid.swift */; };
+		44E32FA02C2C083E00ABCCD6 /* AsyncImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E32F9F2C2C083E00ABCCD6 /* AsyncImageLoader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,7 +61,6 @@
 		44C42F792C1FF73A00754E3C /* FAFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FAFileManager.swift; sourceTree = "<group>"; };
 		44C42F832C2013FF00754E3C /* BookmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkView.swift; sourceTree = "<group>"; };
 		44E32F3F2C23F95D00ABCCD6 /* HttpClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpClient.swift; sourceTree = "<group>"; };
-		44E32F412C2408B500ABCCD6 /* ImageSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSearchViewModel.swift; sourceTree = "<group>"; };
 		44E32F452C2409E500ABCCD6 /* VideoSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSearchView.swift; sourceTree = "<group>"; };
 		44E32F472C240A6B00ABCCD6 /* ImageDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataModel.swift; sourceTree = "<group>"; };
 		44E32F4F2C248FF800ABCCD6 /* ImageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailView.swift; sourceTree = "<group>"; };
@@ -81,6 +83,10 @@
 		44E32F902C2A9BDF00ABCCD6 /* Videos+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Videos+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		44E32F952C2BD6AF00ABCCD6 /* SearchHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchHeader.swift; sourceTree = "<group>"; };
 		44E32F972C2BD6CE00ABCCD6 /* SearchResultNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultNavigation.swift; sourceTree = "<group>"; };
+		44E32F992C2C070800ABCCD6 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		44E32F9B2C2C072E00ABCCD6 /* ResizableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableImageView.swift; sourceTree = "<group>"; };
+		44E32F9D2C2C082000ABCCD6 /* LazyGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyGrid.swift; sourceTree = "<group>"; };
+		44E32F9F2C2C083E00ABCCD6 /* AsyncImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncImageLoader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +151,10 @@
 				44E32F952C2BD6AF00ABCCD6 /* SearchHeader.swift */,
 				44E32F972C2BD6CE00ABCCD6 /* SearchResultNavigation.swift */,
 				44E32F532C24913700ABCCD6 /* ImageSearchView.swift */,
+				44E32F992C2C070800ABCCD6 /* LoadingView.swift */,
+				44E32F9B2C2C072E00ABCCD6 /* ResizableImageView.swift */,
+				44E32F9D2C2C082000ABCCD6 /* LazyGrid.swift */,
+				44E32F9F2C2C083E00ABCCD6 /* AsyncImageLoader.swift */,
 				44E32F6F2C25534000ABCCD6 /* ImageSearchResultsView.swift */,
 				44E32F4F2C248FF800ABCCD6 /* ImageDetailView.swift */,
 				44E32F452C2409E500ABCCD6 /* VideoSearchView.swift */,
@@ -159,7 +169,6 @@
 		44C42F662C1F8A2B00754E3C /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				44E32F412C2408B500ABCCD6 /* ImageSearchViewModel.swift */,
 				44C42F6F2C1F8DF400754E3C /* ImageSearchResultsViewModel.swift */,
 				44C42F6D2C1F8DDA00754E3C /* ImageDetailViewModel.swift */,
 				44E32F672C25515C00ABCCD6 /* VideoSearchViewModel.swift */,
@@ -272,23 +281,26 @@
 				44E32F882C28F2CC00ABCCD6 /* BookmarkDetailView.swift in Sources */,
 				44E32F402C23F95D00ABCCD6 /* HttpClient.swift in Sources */,
 				44E32F912C2A9BDF00ABCCD6 /* Images+CoreDataClass.swift in Sources */,
+				44E32FA02C2C083E00ABCCD6 /* AsyncImageLoader.swift in Sources */,
 				44E32F922C2A9BDF00ABCCD6 /* Images+CoreDataProperties.swift in Sources */,
 				44E32F932C2A9BDF00ABCCD6 /* Videos+CoreDataClass.swift in Sources */,
 				44E32F942C2A9BDF00ABCCD6 /* Videos+CoreDataProperties.swift in Sources */,
 				44E32F962C2BD6AF00ABCCD6 /* SearchHeader.swift in Sources */,
 				44C42F7A2C1FF73A00754E3C /* FAFileManager.swift in Sources */,
-				44E32F422C2408B500ABCCD6 /* ImageSearchViewModel.swift in Sources */,
 				44E32F8C2C29303000ABCCD6 /* PersistenceController.swift in Sources */,
 				44E32F462C2409E500ABCCD6 /* VideoSearchView.swift in Sources */,
 				44C42F5B2C1CC80300754E3C /* SwiftUIAssignment.xcdatamodeld in Sources */,
+				44E32F9E2C2C082000ABCCD6 /* LazyGrid.swift in Sources */,
 				44E32F702C25534000ABCCD6 /* ImageSearchResultsView.swift in Sources */,
 				44E32F6E2C2552EE00ABCCD6 /* VideoSearchResultsView.swift in Sources */,
+				44E32F9A2C2C070800ABCCD6 /* LoadingView.swift in Sources */,
 				44C42F642C1F860100754E3C /* HomeView.swift in Sources */,
 				44C42F842C2013FF00754E3C /* BookmarkView.swift in Sources */,
 				44E32F642C2550B400ABCCD6 /* VideoDataModel.swift in Sources */,
 				44E32F6A2C2551BA00ABCCD6 /* VideoDetailView.swift in Sources */,
 				44E32F722C25546000ABCCD6 /* VideoSearchResultsViewModel.swift in Sources */,
 				44E32F562C24942D00ABCCD6 /* ImageSearchRequest.swift in Sources */,
+				44E32F9C2C2C072E00ABCCD6 /* ResizableImageView.swift in Sources */,
 				44E32F682C25515C00ABCCD6 /* VideoSearchViewModel.swift in Sources */,
 				44C42F4F2C1CC7FF00754E3C /* SwiftUIAssignmentApp.swift in Sources */,
 				44E32F5E2C249B4B00ABCCD6 /* MediaBookmarkModel.swift in Sources */,

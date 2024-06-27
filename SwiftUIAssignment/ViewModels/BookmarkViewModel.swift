@@ -8,20 +8,35 @@
 import SwiftUI
 import CoreData
 
-@MainActor
+
 class BookmarkViewModel: ObservableObject {
     @Published var bookmarkedImages: [Images] = []
     @Published var bookmarkedVideos: [Videos] = []
-    private let dbManager = DBManager.shared
-    private let context: NSManagedObjectContext
 
-    init(context: NSManagedObjectContext) {
-        self.context = context
-        fetchBookmarks()
+    func setup(context: NSManagedObjectContext) {
+        DBManager.shared.context = context
     }
+    
+    private let dbManager = DBManager.shared
 
     func fetchBookmarks() {
         bookmarkedImages = dbManager.fetchData(entity: Images.self)
         bookmarkedVideos = dbManager.fetchData(entity: Videos.self)
+
+        // Print paths of downloaded images
+        print("Downloaded Image Paths:")
+        for image in bookmarkedImages {
+            if let imagePath = image.imageFileName {
+                print(imagePath)
+            }
+        }
+
+        // Print paths of downloaded videos
+        print("Downloaded Video Paths:")
+        for video in bookmarkedVideos {
+            if let videoPath = video.videoFileName {
+                print(videoPath)
+            }
+        }
     }
 }

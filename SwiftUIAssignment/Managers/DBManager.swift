@@ -10,12 +10,12 @@ import UIKit
 
 class DBManager {
     static let shared = DBManager()
+    var context: NSManagedObjectContext!
     
     private init() {}
     
-    // Existing methods for handling images
+    
     func addImageData(title: String, fileName: String) {
-        let context = persistentContainer.viewContext
         let imageEntity = Images(context: context)
         imageEntity.imageDescription = title
         imageEntity.imageFileName = fileName
@@ -29,7 +29,10 @@ class DBManager {
     }
     
     func fetchData<T: NSManagedObject>(entity: T.Type) -> [T] {
-        let context = persistentContainer.viewContext
+        guard let context = context else {
+            print("Context is not set up.")
+            return []
+        }
         let request = T.fetchRequest()
         do {
             return try context.fetch(request) as! [T]
@@ -40,13 +43,11 @@ class DBManager {
     }
     
     func deleteImage(imageEntity: Images) {
-        let context = persistentContainer.viewContext
         context.delete(imageEntity)
         saveContext()
     }
     
     func addVideoData(userName: String, fileName: String) {
-        let context = persistentContainer.viewContext
         let videoEntity = Videos(context: context)
         videoEntity.videoUserName = userName
         videoEntity.videoFileName = fileName
@@ -54,30 +55,21 @@ class DBManager {
     }
     
     func deleteVideo(videoEntity: Videos) {
-        let context = persistentContainer.viewContext
         context.delete(videoEntity)
         saveContext()
     }
     
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "SwiftUIAssignment")
-        container.loadPersistentStores { _, error in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        }
-        return container
-    }()
-    
     func saveContext() {
-        let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()
             } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
+    
+    
+    
 }

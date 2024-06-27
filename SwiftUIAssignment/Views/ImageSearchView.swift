@@ -8,21 +8,22 @@
 import SwiftUI
 
 struct ImageSearchView: View {
-    @StateObject private var viewModel = ImageSearchViewModel()
+    
     @State private var showResults = false
-    @State private var resultsViewModel: ImageSearchResultsViewModel?
+    // track when to show the results
+    @StateObject private var resultsViewModel = ImageSearchResultsViewModel()
+
 
     var body: some View {
         NavigationStack {
             VStack {
-                SearchHeader(title: "Search Images", errorMessage: viewModel.errorMessage)
+                SearchHeader(title: "Search Images")
                 
                 Spacer()
                 
                 NavigationLink(
-                    destination: resultsViewModel.map {
-                        ImageSearchResultsView(viewModel: $0, query: viewModel.searchQuery)
-                    },
+                    destination: ImageSearchResultsView(viewModel: resultsViewModel),
+                
                     isActive: $showResults
                 ) {
                     EmptyView()
@@ -31,11 +32,12 @@ struct ImageSearchView: View {
             .padding()
             .navigationTitle("Image Search Page")
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $viewModel.searchQuery, prompt: "Search for images")
+            
+            .searchable(text: $resultsViewModel.searchQuery, prompt: "Search for images")
             .onSubmit(of: .search) {
-                if !viewModel.searchQuery.isEmpty {
+                if !resultsViewModel.searchQuery.isEmpty {
                     Task {
-                        resultsViewModel = await viewModel.performSearch()
+                        await resultsViewModel.searchImages()
                         showResults = true
                     }
                 }

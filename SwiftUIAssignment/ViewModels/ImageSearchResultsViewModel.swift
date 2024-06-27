@@ -7,28 +7,24 @@
 
 import SwiftUI
 
-@MainActor
 class ImageSearchResultsViewModel: ObservableObject {
     @Published var images: [MediaPhoto] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var searchQuery: String = ""
     
     private let httpClient = HttpClient()
     private var currentPage = 1
     private var canLoadMorePages = true
-    var query: String
+  
 
-    init(query: String) {
-        self.query = query
-    }
-
-    func searchImages(query: String, page: Int = 1) async {
-        guard !query.isEmpty, !isLoading else { return }
+    func searchImages(page: Int = 1) async {
+        guard !searchQuery.isEmpty, !isLoading else { return }
 
         isLoading = true
         errorMessage = nil
 
-        let request = ImageSearchRequest(query: query, page: page)
+        let request = ImageSearchRequest(query: searchQuery, page: page)
 
         do {
             let response: ImageDataModel = try await httpClient.fetch(requestBuilder: request)
@@ -38,7 +34,7 @@ class ImageSearchResultsViewModel: ObservableObject {
                 self.images.append(contentsOf: response.photos)
             }
             self.currentPage = page
-            self.canLoadMorePages = response.photos.count == 20 // Assuming 20 items per page
+            self.canLoadMorePages = response.photos.count == 20
         } catch {
             self.errorMessage = error.localizedDescription
         }
@@ -48,7 +44,7 @@ class ImageSearchResultsViewModel: ObservableObject {
 
     func loadMoreImages() async {
         if canLoadMorePages {
-            await searchImages(query: query, page: currentPage + 1)
+            await searchImages(page: currentPage + 1)
         }
     }
 }

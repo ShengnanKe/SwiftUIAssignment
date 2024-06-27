@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct BookmarkView: View {
-    @ObservedObject var viewModel: BookmarkViewModel
+    @Environment(\.managedObjectContext) private var viewContext
+    @ObservedObject private var viewModel = BookmarkViewModel()
 
     var body: some View {
         NavigationView {
@@ -26,7 +27,9 @@ struct BookmarkView: View {
             }
             .navigationTitle("Bookmarks")
             .onAppear {
+                viewModel.setup(context: viewContext)
                 viewModel.fetchBookmarks()
+          
             }
         }
     }
