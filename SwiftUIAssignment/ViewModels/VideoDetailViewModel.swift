@@ -7,10 +7,10 @@
 
 import SwiftUI
 import AVKit
+import CoreData
 
 class VideoDetailViewModel: ObservableObject {
     @Published var videoFileURL: URL?
-    @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var isBookmarked: Bool = false
     
@@ -21,42 +21,23 @@ class VideoDetailViewModel: ObservableObject {
     
     init(video: MediaVideo) {
         self.video = video
-        
-        Task {
-            await loadVideo()
-        }
-    }
-    
-    func loadVideo() async {
-        guard let videoLink = video.videoFiles.first?.link, let url = URL(string: videoLink) else {
-            errorMessage = "Invalid URL"
-            return
-        }
-        
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let requestBuilder = SimpleRequest(url: url)
-            let tempURL = try await httpClient.download(requestBuilder: requestBuilder)
-            await handleDownloadedVideo(tempURL: tempURL, originalURL: url)
-        } catch {
-            isLoading = false
-            errorMessage = error.localizedDescription
-        }
     }
     
     private func handleDownloadedVideo(tempURL: URL, originalURL: URL) async {
         let fileName = originalURL.lastPathComponent
         guard let videosDirectory = fileManager.getDirectory(for: "Videos") else {
-            errorMessage = "Failed to access videos directory"
+            DispatchQueue.main.async {
+                self.errorMessage = "Failed to access videos directory"
+            }
             return
         }
         
         do {
             try FileManager.default.createDirectory(at: videosDirectory, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            errorMessage = "Failed to create videos directory: \(error.localizedDescription)"
+            DispatchQueue.main.async {
+                self.errorMessage = "Failed to create videos directory: \(error.localizedDescription)"
+            }
             return
         }
         
@@ -67,22 +48,51 @@ class VideoDetailViewModel: ObservableObject {
                 try FileManager.default.removeItem(at: destinationURL)
             }
             try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-            videoFileURL = destinationURL
+//            DispatchQueue.main.async {
+//                self.videoFileURL = destinationURL
+//            }
         } catch {
-            errorMessage = "Failed to save downloaded file: \(error.localizedDescription)"
+            DispatchQueue.main.async {
+                self.errorMessage = "Failed to save downloaded file: \(error.localizedDescription)"
+            }
         }
-        
-        isLoading = false
     }
     
-    func bookmarkVideo() async{
-//        await loadVideo()
-        guard let videoLink = video.videoFiles.first?.link else { return }
-        let fileName = URL(string: videoLink)?.lastPathComponent ?? UUID().uuidString + ".mp4"
-        guard let videosDirectory = fileManager.getDirectory(for: "Videos") else { return }
-        let destinationURL = videosDirectory.appendingPathComponent(fileName)
-        dbManager.addVideoData(userName: video.user.name, fileName: fileName)
+    func bookmarkVideo(context: NSManagedObjectContext) async {
+        dbManager.setContext(context)
         
+        guard let videoLink = video.videoFiles.first?.link, let url = URL(string: videoLink) else {
+            DispatchQueue.main.async {
+                self.errorMessage = "Invalid video link"
+            }
+            return
+        }
+        
+        let requestBuilder = SimpleRequest(url: url)
+        
+        do {
+            let tempURL = try await httpClient.download(requestBuilder: requestBuilder)
+            await handleDownloadedVideo(tempURL: tempURL, originalURL: url)
+            
+            let fileName = url.lastPathComponent
+            guard let videosDirectory = fileManager.getDirectory(for: "Videos") else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to access videos directory"
+                }
+                return
+            }
+            let destinationURL = videosDirectory.appendingPathComponent(fileName)
+            print(destinationURL)
+            self.dbManager.addVideoData(userName: self.video.user.name, fileName: fileName)
+
+//            DispatchQueue.main.async {
+//                self.isBookmarked = true
+//            }
+        } catch {
+            DispatchQueue.main.async {
+                self.errorMessage = "Failed to download video: \(error.localizedDescription)"
+            }
+        }
     }
 }
 
