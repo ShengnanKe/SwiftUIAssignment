@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SearchHeader: View {
     var title: String
-    //var errorMessage: String?
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -17,12 +16,6 @@ struct SearchHeader: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding()
-
-//            if let errorMessage = errorMessage {
-//                Text(errorMessage)
-//                    .foregroundColor(.red)
-//                    .padding()
-//            }
 
             Spacer()
         }
